@@ -1,5 +1,6 @@
 package com.orbital.orbitalbackpack.registries;
 
+import com.orbital.orbitalbackpack.items.Backpack;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -16,7 +17,10 @@ public class ModItems {
         ITEMS.register(eventBus);
     }
 
-    public static final RegistryObject<Item> BACKPACK = ITEMS.register("backpack",
-            () -> new Item(new Item.Properties()));
+//    public static final RegistryObject<Item> BACKPACK = ITEMS.register("backpack",
+//            () -> new Item(new Item.Properties().stacksTo(1)));
 
+
+    public static final RegistryObject<Item> BACKPACK = ITEMS.register("backpack",
+            Backpack::new);
 }

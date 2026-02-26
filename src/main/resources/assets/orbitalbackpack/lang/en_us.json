@@ -1,3 +1,5 @@
 {
-  "item.orbitalbackpack.backpack": "Backpack"
+  "item.orbitalbackpack.backpack": "Backpack",
+  "creativetab.orbitalbackpack.backpack_tab": "Orbital Backpack",
+  "itemGroup.orbitalbackpack.backpack_tab": "Orbital Backpack"
 }
