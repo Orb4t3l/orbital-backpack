@@ -45,6 +45,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 //        guiGraphics.blit(TEXTURE, x, y, 0, 0, 176, 166);
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderTooltip(guiGraphics,mouseX,mouseY);
         this.searchBox.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 

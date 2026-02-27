@@ -1,100 +1,77 @@
 package com.orbital.orbitalbackpack.client.menu;
 
+import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.registries.ModMenus;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
-import net.minecraftforge.network.NetworkHooks;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 public class BackpackMenu extends AbstractContainerMenu {
 
+    private final ItemStackHandler handler;
+    private final InteractionHand hand;
+    private final Player player;
+    private final BackpackTier tier;
 
-    private static final int rows = 3;
-    private ItemStackHandler handler = new ItemStackHandler(rows * 9);
-    private ItemStack backpackStack;
-    public BackpackMenu(int id, Inventory inv, FriendlyByteBuf buf) {
-        super(ModMenus.BACKPACK.get(), id);
-        this.backpackStack = buf.readItem();
+    public BackpackMenu(MenuType<?> menuType, int id, Inventory inv, InteractionHand hand, BackpackTier tier) {
+        super(menuType, id);
+        this.hand = hand;
+        this.player = inv.player;
+        this.tier = tier;
+        this.handler = new ItemStackHandler(tier.getSlots());
 
-        if (backpackStack.hasTag() && backpackStack.getTag().contains("inventory")) {
-            handler.deserializeNBT(backpackStack.getTag().getCompound("inventory"));
+        ItemStack stack = player.getItemInHand(hand);
+        if (stack != null && stack.hasTag() && stack.getTag().contains("inventory")) {
+            this.handler.deserializeNBT(stack.getTag().getCompound("inventory"));
         }
 
-        addSlots(inv);
+        int startX = 8;
+        int startY = 18;
+        for (int row = 0; row < tier.getRows(); row++) {
+            for (int col = 0; col < 9; col++) {
+                this.addSlot(new SlotItemHandler(handler, col + row * 9, startX + col * 18, startY + row * 18));
+            }
+        }
+
+        int playerStartY = startY + tier.getRows() * 18 + 14;
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                this.addSlot(new Slot(inv, col + row * 9 + 9, 8 + col * 18, playerStartY + row * 18));
+            }
+        }
+
+        int hotbarY = playerStartY + 58;
+        for (int col = 0; col < 9; col++) {
+            this.addSlot(new Slot(inv, col, 8 + col * 18, hotbarY));
+        }
+    }
+
+    public static BackpackMenu create(BackpackTier tier, int id, Inventory inv, FriendlyByteBuf buf) {
+        InteractionHand hand = buf.readBoolean() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+        return new BackpackMenu(ModMenus.MENUS.get(tier).get(), id, inv, hand, tier);
+    }
+
+    public BackpackTier getTier() {
+        return tier;
     }
 
     @Override
     public void removed(Player player) {
         super.removed(player);
-
         if (!player.level().isClientSide) {
-            backpackStack.getOrCreateTag().put("inventory", handler.serializeNBT());
-        }
-    }
-
-    public BackpackMenu(int id, Inventory inv) {
-        super(ModMenus.BACKPACK.get(), id);
-        int startX = 8;
-        int startY = 18;
-
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                this.addSlot(new SlotItemHandler(
-                        handler,
-                        col + row * 9,
-                        startX + col * 18,
-                        startY + row * 18
-                ));
-            }
-
-        }
-        int playerStartY = startY + 3 * 18 + 14;
-
-// Player inventory (3 rows)
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(
-                        inv,
-                        col + row * 9 + 9,
-                        8 + col * 18,
-                        playerStartY + row * 18
-                ));
+            ItemStack stack = player.getItemInHand(hand);
+            if (stack != null) {
+                stack.getOrCreateTag().put("inventory", handler.serializeNBT());
             }
         }
-
-// Hotbar
-        int hotbarY = playerStartY + 58;
-
-        for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(
-                    inv,
-                    col,
-                    8 + col * 18,
-                    hotbarY
-            ));
-        }
-
-
-        // TODO: add slots later
     }
-
-
 
     @Override
     public boolean stillValid(Player player) {
@@ -108,11 +85,9 @@ public class BackpackMenu extends AbstractContainerMenu {
 
         if (slot != null && slot.hasItem()) {
             ItemStack stackInSlot = slot.getItem();
-
             stack = stackInSlot.copy();
 
-            int containerSlots = 27;
-
+            int containerSlots = tier.getSlots();
             if (index < containerSlots) {
                 if (!this.moveItemStackTo(stackInSlot, containerSlots, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
@@ -133,4 +108,3 @@ public class BackpackMenu extends AbstractContainerMenu {
         return stack;
     }
 }
-

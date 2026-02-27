@@ -43,10 +43,10 @@ public class Backpack extends Item {
             NetworkHooks.openScreen(
                     (ServerPlayer) player,
                     new SimpleMenuProvider(
-                            (id, inv, p) -> new BackpackMenu(id, inv),
+                            (id, inv, p) -> new BackpackMenu(id, inv, hand),
                             Component.literal("Backpack")
                     ),
-                    buf -> buf.writeItem(stack) // 🔥 THIS is the key
+                    buf -> buf.writeBoolean(hand == InteractionHand.MAIN_HAND) // write hand to buffer
             );
         }
         return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide());
