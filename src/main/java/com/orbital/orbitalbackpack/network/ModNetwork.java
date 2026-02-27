@@ -20,5 +20,10 @@ public class ModNetwork {
                 PickupBackpackPacket::encode,
                 PickupBackpackPacket::decode,
                 PickupBackpackPacket::handle);
+
+        CHANNEL.registerMessage(1, SortBackpackPacket.class,
+                SortBackpackPacket::encode,
+                SortBackpackPacket::decode,
+                SortBackpackPacket::handle);
     }
 }

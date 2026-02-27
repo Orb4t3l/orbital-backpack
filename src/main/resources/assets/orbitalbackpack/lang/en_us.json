@@ -21,5 +21,6 @@
   "block.orbitalbackpack.diamond_backpack_block": "Diamond Backpack",
   "block.orbitalbackpack.netherite_backpack_block": "Netherite Backpack",
   "gui.orbitalbackpack.search_label": "Search",
-  "gui.orbitalbackpack.pickup": "Pick up backpack"
+  "gui.orbitalbackpack.pickup": "Pick up backpack",
+  "gui.orbitalbackpack.sort": "Sort items"
 }

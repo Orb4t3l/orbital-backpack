@@ -95,6 +95,7 @@ public class BackpackMenu extends AbstractContainerMenu {
     public BackpackTier getTier() { return tier; }
     public boolean isBlockBased() { return isBlockBased; }
     public BlockPos getBlockPos() { return blockPos; }
+    public InteractionHand getHand() { return hand; }
 
     @Override
     public void removed(Player player) {
