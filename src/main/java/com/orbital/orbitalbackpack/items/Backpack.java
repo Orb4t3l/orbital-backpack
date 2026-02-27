@@ -1,17 +1,25 @@
 package com.orbital.orbitalbackpack.items;
 
 import com.orbital.orbitalbackpack.OrbitalBackpack;
+import com.orbital.orbitalbackpack.client.menu.BackpackMenu;
 import com.orbital.orbitalbackpack.client.screen.BackpackScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.network.NetworkHooks;
 
 import javax.swing.*;
+
 
 public class Backpack extends Item {
 
@@ -25,12 +33,18 @@ public class Backpack extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         OrbitalBackpack.LOGGER.info("test");
-        if (level.isClientSide) {
-            // Open preview GUI
-            Minecraft.getInstance().setScreen(new BackpackScreen());
+
+        if (!level.isClientSide) {
+            NetworkHooks.openScreen(
+                    (ServerPlayer) player,
+                    new SimpleMenuProvider(
+                            (id, inv, p) -> new BackpackMenu(id, inv),
+                            Component.literal("Backpack")
+                    )
+            );
         }
 
-
-        return super.use(level, player, hand);
+        return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide());
     }
+
 }
