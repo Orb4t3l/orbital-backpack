@@ -1,0 +1,94 @@
+package com.orbital.orbitalbackpack.blocks;
+
+import com.orbital.orbitalbackpack.common.BackpackTier;
+import com.orbital.orbitalbackpack.registries.ModItems;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.network.NetworkHooks;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.level.block.Blocks;
+
+import javax.annotation.Nullable;
+
+public class BackpackBlock extends BaseEntityBlock {
+
+    private static final VoxelShape SHAPE = box(4, 0, 4, 12, 12, 12);
+    private final BackpackTier tier;
+
+    public BackpackBlock(BackpackTier tier) {
+        super(Properties.copy(Blocks.OAK_PLANKS).strength(1.5f).noOcclusion());
+        this.tier = tier;
+    }
+
+    public BackpackTier getTier() {
+        return tier;
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPE;
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new BackpackBlockEntity(pos, state);
+    }
+
+    @Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (!level.isClientSide) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof BackpackBlockEntity backpackBE) {
+                NetworkHooks.openScreen(
+                        (ServerPlayer) player,
+                        new SimpleMenuProvider(
+                                (id, inv, p) -> {
+                                    var menuType = com.orbital.orbitalbackpack.registries.ModMenus.MENUS.get(tier).get();
+                                    return new com.orbital.orbitalbackpack.client.menu.BackpackMenu(menuType, id, inv, pos, tier, backpackBE.getHandler());
+                                },
+                                Component.translatable("item.orbitalbackpack." + tier.name().toLowerCase() + "_backpack")
+                        ),
+                        buf -> {
+                            buf.writeBoolean(true);
+                            buf.writeBlockPos(pos);
+                        }
+                );
+            }
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (!state.is(newState.getBlock())) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof BackpackBlockEntity backpackBE && !level.isClientSide) {
+                ItemStack drop = new ItemStack(ModItems.BACKPACKS.get(tier).get());
+                drop.getOrCreateTag().put("inventory", backpackBE.getHandler().serializeNBT());
+                net.minecraft.world.Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), drop);
+            }
+        }
+        super.onRemove(state, level, pos, newState, isMoving);
+    }
+}

@@ -13,5 +13,12 @@
   "container.orbitalbackpack.gold_backpack": "Gold Backpack",
   "container.orbitalbackpack.iron_backpack": "Iron Backpack",
   "container.orbitalbackpack.diamond_backpack": "Diamond Backpack",
-  "container.orbitalbackpack.netherite_backpack": "Netherite Backpack"
+  "container.orbitalbackpack.netherite_backpack": "Netherite Backpack",
+
+  "block.orbitalbackpack.leather_backpack_block": "Leather Backpack",
+  "block.orbitalbackpack.gold_backpack_block": "Gold Backpack",
+  "block.orbitalbackpack.iron_backpack_block": "Iron Backpack",
+  "block.orbitalbackpack.diamond_backpack_block": "Diamond Backpack",
+  "block.orbitalbackpack.netherite_backpack_block": "Netherite Backpack",
+  "gui.orbitalbackpack.search_label": "Search"
 }

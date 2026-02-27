@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "orbitalbackpack:block/netherite_backpack_block"
+  }
+}

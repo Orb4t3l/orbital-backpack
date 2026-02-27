@@ -16,6 +16,9 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
     private EditBox searchBox;
     private String searchText = "";
 
+    private static final int SEARCH_BOX_WIDTH = 80;
+    private static final int SEARCH_BOX_HEIGHT = 18;
+
     public BackpackScreen(BackpackMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.tier = menu.getTier();
@@ -26,9 +29,9 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
     @Override
     protected void init() {
         super.init();
-        int searchX = this.leftPos + this.imageWidth / 2 - 75;
-        int searchY = this.topPos - 22;
-        this.searchBox = new EditBox(this.font, searchX, searchY, 150, 18, Component.literal(""));
+        int searchX = this.leftPos + this.imageWidth + 4;
+        int searchY = this.topPos;
+        this.searchBox = new EditBox(this.font, searchX, searchY, SEARCH_BOX_WIDTH, SEARCH_BOX_HEIGHT, Component.literal(""));
         this.searchBox.setMaxLength(32);
         this.searchBox.setHint(Component.translatable("gui.orbitalbackpack.search"));
         this.searchBox.setResponder(text -> this.searchText = text.toLowerCase());
@@ -58,6 +61,15 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 
         this.renderTooltip(guiGraphics, mouseX, mouseY);
         this.searchBox.render(guiGraphics, mouseX, mouseY, partialTick);
+
+        guiGraphics.drawString(
+                this.font,
+                Component.translatable("gui.orbitalbackpack.search_label"),
+                this.leftPos + this.imageWidth + 4,
+                this.topPos - 10,
+                0xFFFFFF,
+                true
+        );
     }
 
     @Override

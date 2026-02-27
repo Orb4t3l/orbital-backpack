@@ -19,7 +19,7 @@ public enum BackpackTier {
     public int getSlots() { return rows * 9; }
 
     public ResourceLocation getTexture() {
-        return new ResourceLocation("orbitalbackpack", "textures/gui/container/" + name().toLowerCase() + "_backpack.png");
+        return new ResourceLocation("orbitalbackpack", "textures/gui/" + name().toLowerCase() + "_backpack.png");
     }
 
     public static BackpackTier fromOrdinal(int ordinal) {
