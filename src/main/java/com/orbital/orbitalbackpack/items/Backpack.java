@@ -4,6 +4,7 @@ import com.orbital.orbitalbackpack.OrbitalBackpack;
 import com.orbital.orbitalbackpack.client.menu.BackpackMenu;
 import com.orbital.orbitalbackpack.client.screen.BackpackScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -16,13 +17,15 @@ import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.PlayerDataStorage;
+import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.network.NetworkHooks;
 
 import javax.swing.*;
 
 
-public class Backpack extends Item {
 
+public class Backpack extends Item {
 
 
     public Backpack() {
@@ -35,15 +38,18 @@ public class Backpack extends Item {
         OrbitalBackpack.LOGGER.info("test");
 
         if (!level.isClientSide) {
+            ItemStack stack = player.getItemInHand(hand);
+
             NetworkHooks.openScreen(
                     (ServerPlayer) player,
                     new SimpleMenuProvider(
                             (id, inv, p) -> new BackpackMenu(id, inv),
                             Component.literal("Backpack")
-                    )
+                    ),
+                    buf -> buf.writeItem(stack) // 🔥 THIS is the key
             );
         }
-
         return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide());
+
     }
 }
