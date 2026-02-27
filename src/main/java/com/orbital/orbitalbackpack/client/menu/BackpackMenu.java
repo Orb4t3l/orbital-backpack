@@ -92,9 +92,9 @@ public class BackpackMenu extends AbstractContainerMenu {
         }
     }
 
-    public BackpackTier getTier() {
-        return tier;
-    }
+    public BackpackTier getTier() { return tier; }
+    public boolean isBlockBased() { return isBlockBased; }
+    public BlockPos getBlockPos() { return blockPos; }
 
     @Override
     public void removed(Player player) {
@@ -102,9 +102,7 @@ public class BackpackMenu extends AbstractContainerMenu {
         if (!player.level().isClientSide) {
             if (isBlockBased) {
                 BlockEntity be = player.level().getBlockEntity(blockPos);
-                if (be != null) {
-                    be.setChanged();
-                }
+                if (be != null) be.setChanged();
             } else {
                 ItemStack stack = player.getItemInHand(hand);
                 if (stack != null) {
@@ -115,9 +113,7 @@ public class BackpackMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean stillValid(Player player) {
-        return true;
-    }
+    public boolean stillValid(Player player) { return true; }
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {

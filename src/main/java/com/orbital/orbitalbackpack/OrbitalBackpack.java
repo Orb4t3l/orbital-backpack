@@ -1,6 +1,7 @@
 package com.orbital.orbitalbackpack;
 
 import com.mojang.logging.LogUtils;
+import com.orbital.orbitalbackpack.network.ModNetwork;
 import com.orbital.orbitalbackpack.registries.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -34,6 +35,7 @@ public class OrbitalBackpack {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
+        ModNetwork.register();
     }
 
     @SubscribeEvent

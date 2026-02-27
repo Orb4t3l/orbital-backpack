@@ -2,23 +2,33 @@ package com.orbital.orbitalbackpack.client.screen;
 
 import com.orbital.orbitalbackpack.client.menu.BackpackMenu;
 import com.orbital.orbitalbackpack.common.BackpackTier;
+import com.orbital.orbitalbackpack.network.ModNetwork;
+import com.orbital.orbitalbackpack.network.PickupBackpackPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.items.SlotItemHandler;
 
 public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 
+    private static final ResourceLocation PICKUP_BUTTON_TEXTURE =
+            new ResourceLocation("orbitalbackpack", "textures/gui/pickup_button.png");
+
     private final BackpackTier tier;
     private EditBox searchBox;
+    private ImageButton pickupButton;
     private String searchText = "";
 
     private static final int SLOT_HIDDEN_COLOR = 0xFF3D3D3D;
     private static final int SEARCH_BOX_WIDTH = 80;
     private static final int SEARCH_BOX_HEIGHT = 18;
+    private static final int BUTTON_SIZE = 18;
 
     public BackpackScreen(BackpackMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -30,18 +40,38 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
     @Override
     protected void init() {
         super.init();
-        this.minecraft.player.playSound(net.minecraft.sounds.SoundEvents.HORSE_SADDLE, 1.0F, 1.0F);
-
 
         this.inventoryLabelY = tier.getRows() * 18 + 32 - 10;
 
-        int searchX = this.leftPos + this.imageWidth + 4;
-        int searchY = this.topPos;
-        this.searchBox = new EditBox(this.font, searchX, searchY, SEARCH_BOX_WIDTH, SEARCH_BOX_HEIGHT, Component.literal(""));
+        int sideX = this.leftPos + this.imageWidth + 4;
+
+        this.searchBox = new EditBox(this.font, sideX, this.topPos, SEARCH_BOX_WIDTH, SEARCH_BOX_HEIGHT, Component.literal(""));
         this.searchBox.setMaxLength(32);
         this.searchBox.setHint(Component.translatable("gui.orbitalbackpack.search"));
         this.searchBox.setResponder(text -> this.searchText = text.toLowerCase());
         this.addRenderableWidget(this.searchBox);
+
+        if (this.menu.isBlockBased()) {
+            this.pickupButton = new ImageButton(
+                    sideX,
+                    this.topPos + SEARCH_BOX_HEIGHT + 4,
+                    BUTTON_SIZE,
+                    BUTTON_SIZE,
+                    0, 0,
+                    BUTTON_SIZE,
+                    PICKUP_BUTTON_TEXTURE,
+                    BUTTON_SIZE, BUTTON_SIZE * 2,
+                    btn -> onPickupClicked()
+            );
+            this.pickupButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.pickup")));
+            this.addRenderableWidget(this.pickupButton);
+        }
+    }
+
+    private void onPickupClicked() {
+        if (this.menu.isBlockBased() && this.menu.getBlockPos() != null) {
+            ModNetwork.CHANNEL.sendToServer(new PickupBackpackPacket(this.menu.getBlockPos(), tier));
+        }
     }
 
     @Override
@@ -64,14 +94,8 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         this.renderTooltip(guiGraphics, mouseX, mouseY);
         this.searchBox.render(guiGraphics, mouseX, mouseY, partialTick);
 
-        guiGraphics.drawString(
-                this.font,
-                "Search",
-                this.leftPos + this.imageWidth + 4,
-                this.topPos - 10,
-                0xFFFFFF,
-                true
-        );
+        guiGraphics.drawString(this.font, "Search",
+                this.leftPos + this.imageWidth + 4, this.topPos - 10, 0xFFFFFF, true);
     }
 
     @Override
