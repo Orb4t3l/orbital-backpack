@@ -1,11 +1,14 @@
 package com.orbital.orbitalbackpack;
 
 import com.mojang.logging.LogUtils;
+import com.orbital.orbitalbackpack.client.menu.BackpackMenu;
 import com.orbital.orbitalbackpack.client.screen.BackpackScreen;
 import com.orbital.orbitalbackpack.registries.ModBlocks;
 import com.orbital.orbitalbackpack.registries.ModCreativeTabs;
 import com.orbital.orbitalbackpack.registries.ModItems;
+import com.orbital.orbitalbackpack.registries.ModMenus;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -34,7 +37,8 @@ public class OrbitalBackpack {
 
         // Register forge events
         MinecraftForge.EVENT_BUS.register(this);
-        MenuScreens.register(ModMenus.BACKPACK.get(), BackpackScreen::new);
+        ModMenus.MENU_TYPES.register(modEventBus);
+
 
         // Config
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
