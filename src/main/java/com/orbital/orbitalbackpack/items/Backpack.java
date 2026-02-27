@@ -46,5 +46,4 @@ public class Backpack extends Item {
 
         return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide());
     }
-
 }

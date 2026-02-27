@@ -32,8 +32,9 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         int x = (this.width - 176) / 2;
         int y = (this.height - 166) / 2;
 
-        guiGraphics.blit(TEXTURE, x, y, 0, 0, 176, 166);
         this.renderBackground(guiGraphics);
+        guiGraphics.blit(TEXTURE, x, y, 0, 0, 176, 166);
+
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.searchBox.render(guiGraphics, mouseX, mouseY, partialTick);
     }
@@ -52,7 +53,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
     }
 
     public void onClose() {
-        this.minecraft.popGuiLayer();
+//        this.minecraft.popGuiLayer();
         this.minecraft.player.playSound(
                 net.minecraft.sounds.SoundEvents.HORSE_SADDLE,
                 1.0F,
