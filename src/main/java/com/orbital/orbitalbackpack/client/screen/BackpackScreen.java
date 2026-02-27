@@ -6,46 +6,86 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
+import net.minecraftforge.items.SlotItemHandler;
 
 public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 
-    private static final ResourceLocation TEXTURE = new ResourceLocation("minecraft", "textures/gui/container/shulker_box.png");
+    private final BackpackTier tier;
     private EditBox searchBox;
+    private String searchText = "";
 
     public BackpackScreen(BackpackMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
-        this.imageHeight = 114 + menu.getTier().getRows() * 18;
+        this.tier = menu.getTier();
+        this.imageWidth = 176;
+        this.imageHeight = 114 + tier.getRows() * 18;
     }
 
     @Override
     protected void init() {
-        this.imageWidth = 176;
-        this.searchBox = new EditBox(this.font, this.width / 2 - 100, 20, 200, 20, Component.literal("Search"));
-        this.addRenderableWidget(this.searchBox);
         super.init();
+        int searchX = this.leftPos + this.imageWidth / 2 - 75;
+        int searchY = this.topPos - 22;
+        this.searchBox = new EditBox(this.font, searchX, searchY, 150, 18, Component.literal(""));
+        this.searchBox.setMaxLength(32);
+        this.searchBox.setHint(Component.translatable("gui.orbitalbackpack.search"));
+        this.searchBox.setResponder(text -> this.searchText = text.toLowerCase());
+        this.addRenderableWidget(this.searchBox);
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+
+        if (!searchText.isEmpty()) {
+            for (Slot slot : this.menu.slots) {
+                if (slot instanceof SlotItemHandler) {
+                    if (!slot.hasItem() || !matchesSearch(slot)) {
+                        guiGraphics.fill(
+                                this.leftPos + slot.x,
+                                this.topPos + slot.y,
+                                this.leftPos + slot.x + 16,
+                                this.topPos + slot.y + 16,
+                                0xAA000000
+                        );
+                    }
+                }
+            }
+        }
+
         this.renderTooltip(guiGraphics, mouseX, mouseY);
         this.searchBox.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        guiGraphics.blit(TEXTURE, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        guiGraphics.blit(tier.getTexture(), this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+    }
+
+    private boolean matchesSearch(Slot slot) {
+        if (!slot.hasItem()) return false;
+        String itemName = slot.getItem().getHoverName().getString().toLowerCase();
+        String itemId = slot.getItem().getItem().builtInRegistryHolder().key().location().toString().toLowerCase();
+        return itemName.contains(searchText) || itemId.contains(searchText);
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (this.searchBox.keyPressed(keyCode, scanCode, modifiers)) {
+        if (this.searchBox.isFocused() && this.searchBox.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean charTyped(char c, int modifiers) {
+        if (this.searchBox.isFocused() && this.searchBox.charTyped(c, modifiers)) {
+            return true;
+        }
+        return super.charTyped(c, modifiers);
     }
 
     @Override

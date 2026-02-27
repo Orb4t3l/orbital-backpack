@@ -1,5 +1,7 @@
 package com.orbital.orbitalbackpack.common;
 
+import net.minecraft.resources.ResourceLocation;
+
 public enum BackpackTier {
     LEATHER(3),
     GOLD(4),
@@ -15,6 +17,10 @@ public enum BackpackTier {
 
     public int getRows() { return rows; }
     public int getSlots() { return rows * 9; }
+
+    public ResourceLocation getTexture() {
+        return new ResourceLocation("orbitalbackpack", "textures/gui/container/" + name().toLowerCase() + "_backpack.png");
+    }
 
     public static BackpackTier fromOrdinal(int ordinal) {
         return values()[Math.max(0, Math.min(ordinal, values().length - 1))];

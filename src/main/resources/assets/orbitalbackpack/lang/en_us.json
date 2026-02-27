@@ -1,5 +1,17 @@
 {
-  "item.orbitalbackpack.backpack": "Backpack",
-  "creativetab.orbitalbackpack.backpack_tab": "Orbital Backpack",
-  "itemGroup.orbitalbackpack.backpack_tab": "Orbital Backpack"
+  "item.orbitalbackpack.leather_backpack": "Leather Backpack",
+  "item.orbitalbackpack.gold_backpack": "Gold Backpack",
+  "item.orbitalbackpack.iron_backpack": "Iron Backpack",
+  "item.orbitalbackpack.diamond_backpack": "Diamond Backpack",
+  "item.orbitalbackpack.netherite_backpack": "Netherite Backpack",
+
+  "creativetab.orbitalbackpack.backpack_tab": "Backpacks",
+
+  "gui.orbitalbackpack.search": "Search...",
+
+  "container.orbitalbackpack.leather_backpack": "Leather Backpack",
+  "container.orbitalbackpack.gold_backpack": "Gold Backpack",
+  "container.orbitalbackpack.iron_backpack": "Iron Backpack",
+  "container.orbitalbackpack.diamond_backpack": "Diamond Backpack",
+  "container.orbitalbackpack.netherite_backpack": "Netherite Backpack"
 }
