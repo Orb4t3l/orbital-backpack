@@ -16,6 +16,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
     private EditBox searchBox;
     private String searchText = "";
 
+    private static final int SLOT_HIDDEN_COLOR = 0xFF3D3D3D;
     private static final int SEARCH_BOX_WIDTH = 80;
     private static final int SEARCH_BOX_HEIGHT = 18;
 
@@ -29,6 +30,11 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
     @Override
     protected void init() {
         super.init();
+        this.minecraft.player.playSound(net.minecraft.sounds.SoundEvents.HORSE_SADDLE, 1.0F, 1.0F);
+
+
+        this.inventoryLabelY = tier.getRows() * 18 + 32 - 10;
+
         int searchX = this.leftPos + this.imageWidth + 4;
         int searchY = this.topPos;
         this.searchBox = new EditBox(this.font, searchX, searchY, SEARCH_BOX_WIDTH, SEARCH_BOX_HEIGHT, Component.literal(""));
@@ -46,14 +52,10 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         if (!searchText.isEmpty()) {
             for (Slot slot : this.menu.slots) {
                 if (slot instanceof SlotItemHandler) {
-                    if (!slot.hasItem() || !matchesSearch(slot)) {
-                        guiGraphics.fill(
-                                this.leftPos + slot.x,
-                                this.topPos + slot.y,
-                                this.leftPos + slot.x + 16,
-                                this.topPos + slot.y + 16,
-                                0xAA000000
-                        );
+                    if (!matchesSearch(slot)) {
+                        int slotX = this.leftPos + slot.x;
+                        int slotY = this.topPos + slot.y;
+                        guiGraphics.fill(slotX, slotY, slotX + 16, slotY + 16, SLOT_HIDDEN_COLOR);
                     }
                 }
             }
@@ -64,7 +66,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 
         guiGraphics.drawString(
                 this.font,
-                Component.translatable("gui.orbitalbackpack.search_label"),
+                "Search",
                 this.leftPos + this.imageWidth + 4,
                 this.topPos - 10,
                 0xFFFFFF,

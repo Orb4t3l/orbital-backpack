@@ -2,10 +2,13 @@ package com.orbital.orbitalbackpack.client;
 
 import com.orbital.orbitalbackpack.OrbitalBackpack;
 import com.orbital.orbitalbackpack.client.screen.BackpackScreen;
+import com.orbital.orbitalbackpack.client.tooltip.BackpackClientTooltipComponent;
+import com.orbital.orbitalbackpack.client.tooltip.BackpackTooltipComponent;
 import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.registries.ModMenus;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -22,5 +25,10 @@ public final class ClientSetup {
                 MenuScreens.register(ModMenus.MENUS.get(tier).get(), BackpackScreen::new);
             }
         });
+    }
+
+    @SubscribeEvent
+    public static void onRegisterTooltips(final RegisterClientTooltipComponentFactoriesEvent event) {
+        event.register(BackpackTooltipComponent.class, BackpackClientTooltipComponent::new);
     }
 }
