@@ -11,6 +11,7 @@ import net.minecraftforge.items.ItemStackHandler;
 public class BackpackBlockEntity extends BlockEntity {
 
     private ItemStackHandler handler;
+    private boolean claimed = false;
 
     public BackpackBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.BACKPACK_BE.get(), pos, state);
@@ -18,9 +19,9 @@ public class BackpackBlockEntity extends BlockEntity {
         this.handler = new ItemStackHandler(tier.getSlots());
     }
 
-    public ItemStackHandler getHandler() {
-        return handler;
-    }
+    public ItemStackHandler getHandler() { return handler; }
+    public boolean isClaimed() { return claimed; }
+    public void setClaimed() { this.claimed = true; }
 
     @Override
     public void load(CompoundTag tag) {

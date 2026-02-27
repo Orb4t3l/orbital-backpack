@@ -18,7 +18,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.network.NetworkHooks;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.level.block.Blocks;
@@ -35,9 +34,7 @@ public class BackpackBlock extends BaseEntityBlock {
         this.tier = tier;
     }
 
-    public BackpackTier getTier() {
-        return tier;
-    }
+    public BackpackTier getTier() { return tier; }
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
@@ -84,9 +81,11 @@ public class BackpackBlock extends BaseEntityBlock {
         if (!state.is(newState.getBlock())) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof BackpackBlockEntity backpackBE && !level.isClientSide) {
-                ItemStack drop = new ItemStack(ModItems.BACKPACKS.get(tier).get());
-                drop.getOrCreateTag().put("inventory", backpackBE.getHandler().serializeNBT());
-                net.minecraft.world.Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), drop);
+                if (!backpackBE.isClaimed()) {
+                    ItemStack drop = new ItemStack(ModItems.BACKPACKS.get(tier).get());
+                    drop.getOrCreateTag().put("inventory", backpackBE.getHandler().serializeNBT());
+                    net.minecraft.world.Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), drop);
+                }
             }
         }
         super.onRemove(state, level, pos, newState, isMoving);

@@ -43,6 +43,7 @@ public class PickupBackpackPacket {
             ItemStack backpackItem = new ItemStack(ModItems.BACKPACKS.get(packet.tier).get());
             backpackItem.getOrCreateTag().put("inventory", backpackBE.getHandler().serializeNBT());
 
+            backpackBE.setClaimed();
             player.closeContainer();
             level.removeBlock(packet.pos, false);
 
