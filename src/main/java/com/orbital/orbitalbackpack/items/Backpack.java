@@ -7,6 +7,7 @@ import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.common.ItemValueHelper;
 import com.orbital.orbitalbackpack.registries.ModBlocks;
 import com.orbital.orbitalbackpack.registries.ModMenus;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -52,10 +53,14 @@ public class Backpack extends Item {
             if (!handler.getStackInSlot(i).isEmpty()) usedSlots++;
         }
 
+        boolean expanded = Screen.hasShiftDown();
+        int displayCount = expanded ? 27 : 5;
+
         return Optional.of(new BackpackTooltipComponent(
-                ItemValueHelper.getTopItems(handler, 5),
+                ItemValueHelper.getTopItems(handler, displayCount),
                 usedSlots,
-                tier.getSlots()
+                tier.getSlots(),
+                expanded
         ));
     }
 
