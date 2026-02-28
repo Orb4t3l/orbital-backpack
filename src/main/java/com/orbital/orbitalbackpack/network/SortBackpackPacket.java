@@ -1,6 +1,7 @@
 package com.orbital.orbitalbackpack.network;
 
 import com.orbital.orbitalbackpack.blocks.BackpackBlockEntity;
+import com.orbital.orbitalbackpack.client.menu.BackpackMenu;
 import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.common.ItemSortHelper;
 import net.minecraft.core.BlockPos;
@@ -47,44 +48,28 @@ public class SortBackpackPacket {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player == null) return;
+            if (!(player.containerMenu instanceof BackpackMenu backpackMenu)) return;
+
+            ItemStackHandler handler = backpackMenu.getHandler();
+
+            ItemSortHelper.pullMatchingFromPlayer(handler, player);
+            ItemSortHelper.sortInternal(handler);
 
             if (packet.isBlockBased) {
                 var be = player.serverLevel().getBlockEntity(packet.pos);
                 if (be instanceof BackpackBlockEntity backpackBE) {
-                    ItemSortHelper.pullMatchingFromPlayer(backpackBE.getHandler(), player);
-                    ItemSortHelper.sortInternal(backpackBE.getHandler());
                     backpackBE.setChanged();
-                    player.getInventory().setChanged();
-                    player.containerMenu.broadcastChanges();
-                    player.inventoryMenu.broadcastChanges();
                 }
             } else {
                 InteractionHand hand = packet.isMainHand ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
                 ItemStack stack = player.getItemInHand(hand);
-                if (stack.isEmpty()) return;
-
-                BackpackTier tier = null;
-                for (BackpackTier t : BackpackTier.values()) {
-                    if (stack.getItem() == com.orbital.orbitalbackpack.registries.ModItems.BACKPACKS.get(t).get()) {
-                        tier = t;
-                        break;
-                    }
+                if (!stack.isEmpty()) {
+                    stack.getOrCreateTag().put("inventory", handler.serializeNBT());
                 }
-                if (tier == null) return;
-
-                ItemStackHandler handler = new ItemStackHandler(tier.getSlots());
-                if (stack.hasTag() && stack.getTag().contains("inventory")) {
-                    handler.deserializeNBT(stack.getTag().getCompound("inventory"));
-                }
-
-                ItemSortHelper.pullMatchingFromPlayer(handler, player);
-                ItemSortHelper.sortInternal(handler);
-                stack.getOrCreateTag().put("inventory", handler.serializeNBT());
-
-                player.getInventory().setChanged();
-                player.containerMenu.broadcastChanges();
-                player.inventoryMenu.broadcastChanges();
             }
+
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
         });
         ctx.get().setPacketHandled(true);
     }

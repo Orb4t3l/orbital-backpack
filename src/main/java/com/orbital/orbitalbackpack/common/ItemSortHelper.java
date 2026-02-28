@@ -43,14 +43,10 @@ public class ItemSortHelper {
             for (int backpackSlot = 0; backpackSlot < handler.getSlots(); backpackSlot++) {
                 if (!handler.getStackInSlot(backpackSlot).isEmpty()) continue;
 
-                int toMove = Math.min(playerStack.getMaxStackSize(), playerStack.getCount());
                 ItemStack newStack = playerStack.copy();
-                newStack.setCount(toMove);
                 handler.setStackInSlot(backpackSlot, newStack);
-
-                playerStack.shrink(toMove);
-                player.getInventory().setItem(playerSlot, playerStack.isEmpty() ? ItemStack.EMPTY : playerStack);
-                if (playerStack.isEmpty()) break;
+                player.getInventory().setItem(playerSlot, ItemStack.EMPTY);
+                break;
             }
         }
     }
