@@ -11,6 +11,44 @@ import java.util.List;
 
 public class ItemSortHelper {
 
+    public static void depositAll(ItemStackHandler handler, Player player) {
+        for (int playerSlot = 0; playerSlot < player.getInventory().getContainerSize(); playerSlot++) {
+            ItemStack playerStack = player.getInventory().getItem(playerSlot);
+            if (playerStack.isEmpty()) continue;
+
+            Item playerItem = playerStack.getItem();
+
+            for (int backpackSlot = 0; backpackSlot < handler.getSlots(); backpackSlot++) {
+                ItemStack backpackStack = handler.getStackInSlot(backpackSlot);
+                if (backpackStack.isEmpty()) continue;
+                if (backpackStack.getItem() != playerItem) continue;
+
+                int space = backpackStack.getMaxStackSize() - backpackStack.getCount();
+                if (space <= 0) continue;
+
+                int toMove = Math.min(space, playerStack.getCount());
+                ItemStack updatedBackpack = backpackStack.copy();
+                updatedBackpack.setCount(backpackStack.getCount() + toMove);
+                handler.setStackInSlot(backpackSlot, updatedBackpack);
+
+                playerStack.shrink(toMove);
+                player.getInventory().setItem(playerSlot, playerStack.isEmpty() ? ItemStack.EMPTY : playerStack);
+                if (playerStack.isEmpty()) break;
+            }
+
+            playerStack = player.getInventory().getItem(playerSlot);
+            if (playerStack.isEmpty()) continue;
+
+            for (int backpackSlot = 0; backpackSlot < handler.getSlots(); backpackSlot++) {
+                if (!handler.getStackInSlot(backpackSlot).isEmpty()) continue;
+
+                handler.setStackInSlot(backpackSlot, playerStack.copy());
+                player.getInventory().setItem(playerSlot, ItemStack.EMPTY);
+                break;
+            }
+        }
+    }
+
     public static void pullMatchingFromPlayer(ItemStackHandler handler, Player player) {
         for (int playerSlot = 0; playerSlot < player.getInventory().getContainerSize(); playerSlot++) {
             ItemStack playerStack = player.getInventory().getItem(playerSlot);
@@ -42,9 +80,7 @@ public class ItemSortHelper {
 
             for (int backpackSlot = 0; backpackSlot < handler.getSlots(); backpackSlot++) {
                 if (!handler.getStackInSlot(backpackSlot).isEmpty()) continue;
-
-                ItemStack newStack = playerStack.copy();
-                handler.setStackInSlot(backpackSlot, newStack);
+                handler.setStackInSlot(backpackSlot, playerStack.copy());
                 player.getInventory().setItem(playerSlot, ItemStack.EMPTY);
                 break;
             }

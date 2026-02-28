@@ -25,5 +25,10 @@ public class ModNetwork {
                 SortBackpackPacket::encode,
                 SortBackpackPacket::decode,
                 SortBackpackPacket::handle);
+
+        CHANNEL.registerMessage(2, DepositAllPacket.class,
+                DepositAllPacket::encode,
+                DepositAllPacket::decode,
+                DepositAllPacket::handle);
     }
 }

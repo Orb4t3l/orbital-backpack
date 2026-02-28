@@ -2,6 +2,7 @@ package com.orbital.orbitalbackpack.client.screen;
 
 import com.orbital.orbitalbackpack.client.menu.BackpackMenu;
 import com.orbital.orbitalbackpack.common.BackpackTier;
+import com.orbital.orbitalbackpack.network.DepositAllPacket;
 import com.orbital.orbitalbackpack.network.ModNetwork;
 import com.orbital.orbitalbackpack.network.PickupBackpackPacket;
 import com.orbital.orbitalbackpack.network.SortBackpackPacket;
@@ -23,15 +24,18 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
             new ResourceLocation("orbitalbackpack", "textures/gui/pickup_button.png");
     private static final ResourceLocation SORT_BUTTON_TEXTURE =
             new ResourceLocation("orbitalbackpack", "textures/gui/sort_button.png");
+    private static final ResourceLocation DEPOSIT_BUTTON_TEXTURE =
+            new ResourceLocation("orbitalbackpack", "textures/gui/deposit_button.png");
 
     private final BackpackTier tier;
     private EditBox searchBox;
     private String searchText = "";
 
     private static final int SLOT_HIDDEN_COLOR = 0xFF3D3D3D;
-    private static final int SEARCH_BOX_WIDTH = 80;
-    private static final int SEARCH_BOX_HEIGHT = 18;
-    private static final int BUTTON_SIZE = 18;
+    private static final int SEARCH_BOX_WIDTH = 60;
+    private static final int SEARCH_BOX_HEIGHT = 12;
+    private static final int BUTTON_SIZE = 12;
+    private static final int BUTTON_GAP = 3;
 
     public BackpackScreen(BackpackMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -46,19 +50,19 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 
         this.inventoryLabelY = tier.getRows() * 18 + 32 - 10;
 
-        int sideX = this.leftPos + this.imageWidth + 4;
+        int sideX = this.leftPos + this.imageWidth + 6;
+        int currentY = this.topPos;
 
-        this.searchBox = new EditBox(this.font, sideX, this.topPos, SEARCH_BOX_WIDTH, SEARCH_BOX_HEIGHT, Component.literal(""));
+        this.searchBox = new EditBox(this.font, sideX, currentY, SEARCH_BOX_WIDTH, SEARCH_BOX_HEIGHT, Component.literal(""));
         this.searchBox.setMaxLength(32);
         this.searchBox.setHint(Component.translatable("gui.orbitalbackpack.search"));
         this.searchBox.setResponder(text -> this.searchText = text.toLowerCase());
         this.addRenderableWidget(this.searchBox);
-
-        int nextButtonY = this.topPos + SEARCH_BOX_HEIGHT + 4;
+        currentY += SEARCH_BOX_HEIGHT + BUTTON_GAP;
 
         if (this.menu.isBlockBased()) {
             ImageButton pickupButton = new ImageButton(
-                    sideX, nextButtonY,
+                    sideX, currentY,
                     BUTTON_SIZE, BUTTON_SIZE,
                     0, 0, BUTTON_SIZE,
                     PICKUP_BUTTON_TEXTURE,
@@ -67,11 +71,11 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
             );
             pickupButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.pickup")));
             this.addRenderableWidget(pickupButton);
-            nextButtonY += BUTTON_SIZE + 4;
+            currentY += BUTTON_SIZE + BUTTON_GAP;
         }
 
         ImageButton sortButton = new ImageButton(
-                sideX, nextButtonY,
+                sideX, currentY,
                 BUTTON_SIZE, BUTTON_SIZE,
                 0, 0, BUTTON_SIZE,
                 SORT_BUTTON_TEXTURE,
@@ -80,6 +84,18 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         );
         sortButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.sort")));
         this.addRenderableWidget(sortButton);
+        currentY += BUTTON_SIZE + BUTTON_GAP;
+
+        ImageButton depositButton = new ImageButton(
+                sideX, currentY,
+                BUTTON_SIZE, BUTTON_SIZE,
+                0, 0, BUTTON_SIZE,
+                DEPOSIT_BUTTON_TEXTURE,
+                BUTTON_SIZE, BUTTON_SIZE * 2,
+                btn -> onDepositClicked()
+        );
+        depositButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.deposit")));
+        this.addRenderableWidget(depositButton);
     }
 
     private void onPickupClicked() {
@@ -91,6 +107,15 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
     private void onSortClicked() {
         boolean isBlock = this.menu.isBlockBased();
         ModNetwork.CHANNEL.sendToServer(new SortBackpackPacket(
+                isBlock,
+                isBlock ? this.menu.getBlockPos() : null,
+                !isBlock && this.menu.getHand() == InteractionHand.MAIN_HAND
+        ));
+    }
+
+    private void onDepositClicked() {
+        boolean isBlock = this.menu.isBlockBased();
+        ModNetwork.CHANNEL.sendToServer(new DepositAllPacket(
                 isBlock,
                 isBlock ? this.menu.getBlockPos() : null,
                 !isBlock && this.menu.getHand() == InteractionHand.MAIN_HAND
@@ -118,7 +143,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         this.searchBox.render(guiGraphics, mouseX, mouseY, partialTick);
 
         guiGraphics.drawString(this.font, "Search",
-                this.leftPos + this.imageWidth + 4, this.topPos - 10, 0xFFFFFF, true);
+                this.leftPos + this.imageWidth + 6, this.topPos - 9, 0xFFFFFF, true);
     }
 
     @Override
