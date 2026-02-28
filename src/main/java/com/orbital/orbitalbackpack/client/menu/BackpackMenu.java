@@ -14,7 +14,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.items.SlotItemHandler;
 
 public class BackpackMenu extends AbstractContainerMenu {
 
@@ -75,7 +74,7 @@ public class BackpackMenu extends AbstractContainerMenu {
         int startY = 18;
         for (int row = 0; row < tier.getRows(); row++) {
             for (int col = 0; col < 9; col++) {
-                this.addSlot(new SlotItemHandler(handler, col + row * 9, startX + col * 18, startY + row * 18));
+                this.addSlot(new RestrictedBackpackSlot(handler, col + row * 9, startX + col * 18, startY + row * 18));
             }
         }
 

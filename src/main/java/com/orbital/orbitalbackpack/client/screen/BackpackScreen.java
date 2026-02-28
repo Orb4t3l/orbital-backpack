@@ -6,6 +6,7 @@ import com.orbital.orbitalbackpack.network.DepositAllPacket;
 import com.orbital.orbitalbackpack.network.ModNetwork;
 import com.orbital.orbitalbackpack.network.PickupBackpackPacket;
 import com.orbital.orbitalbackpack.network.SortBackpackPacket;
+import com.orbital.orbitalbackpack.network.WithdrawAllPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ImageButton;
@@ -26,6 +27,8 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
             new ResourceLocation("orbitalbackpack", "textures/gui/sort_button.png");
     private static final ResourceLocation DEPOSIT_BUTTON_TEXTURE =
             new ResourceLocation("orbitalbackpack", "textures/gui/deposit_button.png");
+    private static final ResourceLocation WITHDRAW_BUTTON_TEXTURE =
+            new ResourceLocation("orbitalbackpack", "textures/gui/withdraw_button.png");
 
     private final BackpackTier tier;
     private EditBox searchBox;
@@ -62,11 +65,9 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 
         if (this.menu.isBlockBased()) {
             ImageButton pickupButton = new ImageButton(
-                    sideX, currentY,
-                    BUTTON_SIZE, BUTTON_SIZE,
+                    sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
                     0, 0, BUTTON_SIZE,
-                    PICKUP_BUTTON_TEXTURE,
-                    BUTTON_SIZE, BUTTON_SIZE * 2,
+                    PICKUP_BUTTON_TEXTURE, BUTTON_SIZE, BUTTON_SIZE * 2,
                     btn -> onPickupClicked()
             );
             pickupButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.pickup")));
@@ -75,11 +76,9 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         }
 
         ImageButton sortButton = new ImageButton(
-                sideX, currentY,
-                BUTTON_SIZE, BUTTON_SIZE,
+                sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
                 0, 0, BUTTON_SIZE,
-                SORT_BUTTON_TEXTURE,
-                BUTTON_SIZE, BUTTON_SIZE * 2,
+                SORT_BUTTON_TEXTURE, BUTTON_SIZE, BUTTON_SIZE * 2,
                 btn -> onSortClicked()
         );
         sortButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.sort")));
@@ -87,15 +86,23 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         currentY += BUTTON_SIZE + BUTTON_GAP;
 
         ImageButton depositButton = new ImageButton(
-                sideX, currentY,
-                BUTTON_SIZE, BUTTON_SIZE,
+                sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
                 0, 0, BUTTON_SIZE,
-                DEPOSIT_BUTTON_TEXTURE,
-                BUTTON_SIZE, BUTTON_SIZE * 2,
+                DEPOSIT_BUTTON_TEXTURE, BUTTON_SIZE, BUTTON_SIZE * 2,
                 btn -> onDepositClicked()
         );
         depositButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.deposit")));
         this.addRenderableWidget(depositButton);
+        currentY += BUTTON_SIZE + BUTTON_GAP;
+
+        ImageButton withdrawButton = new ImageButton(
+                sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
+                0, 0, BUTTON_SIZE,
+                WITHDRAW_BUTTON_TEXTURE, BUTTON_SIZE, BUTTON_SIZE * 2,
+                btn -> onWithdrawClicked()
+        );
+        withdrawButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.withdraw")));
+        this.addRenderableWidget(withdrawButton);
     }
 
     private void onPickupClicked() {
@@ -116,6 +123,15 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
     private void onDepositClicked() {
         boolean isBlock = this.menu.isBlockBased();
         ModNetwork.CHANNEL.sendToServer(new DepositAllPacket(
+                isBlock,
+                isBlock ? this.menu.getBlockPos() : null,
+                !isBlock && this.menu.getHand() == InteractionHand.MAIN_HAND
+        ));
+    }
+
+    private void onWithdrawClicked() {
+        boolean isBlock = this.menu.isBlockBased();
+        ModNetwork.CHANNEL.sendToServer(new WithdrawAllPacket(
                 isBlock,
                 isBlock ? this.menu.getBlockPos() : null,
                 !isBlock && this.menu.getHand() == InteractionHand.MAIN_HAND

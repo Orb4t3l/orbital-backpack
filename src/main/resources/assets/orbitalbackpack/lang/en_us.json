@@ -23,5 +23,6 @@
   "gui.orbitalbackpack.search_label": "Search",
   "gui.orbitalbackpack.pickup": "Pick up backpack",
   "gui.orbitalbackpack.sort": "Sort items",
-  "gui.orbitalbackpack.deposit": "Deposit all items"
+  "gui.orbitalbackpack.deposit": "Deposit all items",
+  "gui.orbitalbackpack.withdraw": "Withdraw all items"
 }

@@ -30,5 +30,10 @@ public class ModNetwork {
                 DepositAllPacket::encode,
                 DepositAllPacket::decode,
                 DepositAllPacket::handle);
+
+        CHANNEL.registerMessage(3, WithdrawAllPacket.class,
+                WithdrawAllPacket::encode,
+                WithdrawAllPacket::decode,
+                WithdrawAllPacket::handle);
     }
 }
