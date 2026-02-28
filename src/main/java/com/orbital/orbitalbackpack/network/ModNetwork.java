@@ -20,20 +20,21 @@ public class ModNetwork {
                 PickupBackpackPacket::encode,
                 PickupBackpackPacket::decode,
                 PickupBackpackPacket::handle);
-
         CHANNEL.registerMessage(1, SortBackpackPacket.class,
                 SortBackpackPacket::encode,
                 SortBackpackPacket::decode,
                 SortBackpackPacket::handle);
-
         CHANNEL.registerMessage(2, DepositAllPacket.class,
                 DepositAllPacket::encode,
                 DepositAllPacket::decode,
                 DepositAllPacket::handle);
-
         CHANNEL.registerMessage(3, WithdrawAllPacket.class,
                 WithdrawAllPacket::encode,
                 WithdrawAllPacket::decode,
                 WithdrawAllPacket::handle);
+        CHANNEL.registerMessage(4, MagnetTogglePacket.class,
+                MagnetTogglePacket::encode,
+                MagnetTogglePacket::decode,
+                MagnetTogglePacket::handle);
     }
 }

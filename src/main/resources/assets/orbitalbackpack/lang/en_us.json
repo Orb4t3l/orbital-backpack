@@ -24,5 +24,6 @@
   "gui.orbitalbackpack.pickup": "Pick up backpack",
   "gui.orbitalbackpack.sort": "Sort items",
   "gui.orbitalbackpack.deposit": "Deposit all items",
-  "gui.orbitalbackpack.withdraw": "Withdraw all items"
+  "gui.orbitalbackpack.withdraw": "Withdraw all items",
+  "gui.orbitalbackpack.magnet": "Toggle Magnet Mode"
 }

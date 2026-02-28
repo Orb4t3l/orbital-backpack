@@ -2,11 +2,7 @@ package com.orbital.orbitalbackpack.client.screen;
 
 import com.orbital.orbitalbackpack.client.menu.BackpackMenu;
 import com.orbital.orbitalbackpack.common.BackpackTier;
-import com.orbital.orbitalbackpack.network.DepositAllPacket;
-import com.orbital.orbitalbackpack.network.ModNetwork;
-import com.orbital.orbitalbackpack.network.PickupBackpackPacket;
-import com.orbital.orbitalbackpack.network.SortBackpackPacket;
-import com.orbital.orbitalbackpack.network.WithdrawAllPacket;
+import com.orbital.orbitalbackpack.network.*;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ImageButton;
@@ -17,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.SlotItemHandler;
 
 public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
@@ -29,6 +26,8 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
             new ResourceLocation("orbitalbackpack", "textures/gui/deposit_button.png");
     private static final ResourceLocation WITHDRAW_BUTTON_TEXTURE =
             new ResourceLocation("orbitalbackpack", "textures/gui/withdraw_button.png");
+    private static final ResourceLocation MAGNET_BUTTON_TEXTURE =
+            new ResourceLocation("orbitalbackpack", "textures/gui/magnet_button.png");
 
     private final BackpackTier tier;
     private EditBox searchBox;
@@ -39,6 +38,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
     private static final int SEARCH_BOX_HEIGHT = 12;
     private static final int BUTTON_SIZE = 12;
     private static final int BUTTON_GAP = 3;
+    private static final int MAGNET_ACTIVE_COLOR = 0x5500AAFF;
 
     public BackpackScreen(BackpackMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -103,6 +103,18 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         );
         withdrawButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.withdraw")));
         this.addRenderableWidget(withdrawButton);
+        currentY += BUTTON_SIZE + BUTTON_GAP;
+
+        if (!this.menu.isBlockBased()) {
+            ImageButton magnetButton = new ImageButton(
+                    sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
+                    0, 0, BUTTON_SIZE,
+                    MAGNET_BUTTON_TEXTURE, BUTTON_SIZE, BUTTON_SIZE * 2,
+                    btn -> onMagnetClicked()
+            );
+            magnetButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.magnet")));
+            this.addRenderableWidget(magnetButton);
+        }
     }
 
     private void onPickupClicked() {
@@ -138,6 +150,30 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         ));
     }
 
+    private void onMagnetClicked() {
+        ModNetwork.CHANNEL.sendToServer(new MagnetTogglePacket(
+                this.menu.getHand() == InteractionHand.MAIN_HAND
+        ));
+    }
+
+    private boolean isMagnetActive() {
+        if (this.minecraft == null || this.minecraft.player == null) return false;
+        for (int i = 0; i < this.minecraft.player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = this.minecraft.player.getInventory().getItem(i);
+            if (stack.getItem() == this.menu.getTier().equals(tier)
+                    && stack.hasTag()
+                    && stack.getTag().getBoolean("magnet")) {
+                return true;
+            }
+        }
+        InteractionHand hand = this.menu.getHand();
+        if (hand != null) {
+            ItemStack held = this.minecraft.player.getItemInHand(hand);
+            return held.hasTag() && held.getTag().getBoolean("magnet");
+        }
+        return false;
+    }
+
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics);
@@ -153,6 +189,15 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
                     }
                 }
             }
+        }
+
+        if (isMagnetActive()) {
+            guiGraphics.fill(
+                    this.leftPos - 2, this.topPos - 2,
+                    this.leftPos + this.imageWidth + 2,
+                    this.topPos + this.imageHeight + 2,
+                    MAGNET_ACTIVE_COLOR
+            );
         }
 
         this.renderTooltip(guiGraphics, mouseX, mouseY);
