@@ -51,8 +51,12 @@ public class SortBackpackPacket {
             if (packet.isBlockBased) {
                 var be = player.serverLevel().getBlockEntity(packet.pos);
                 if (be instanceof BackpackBlockEntity backpackBE) {
-                    ItemSortHelper.sortAndPull(backpackBE.getHandler(), player);
+                    ItemSortHelper.pullMatchingFromPlayer(backpackBE.getHandler(), player);
+                    ItemSortHelper.sortInternal(backpackBE.getHandler());
                     backpackBE.setChanged();
+                    player.getInventory().setChanged();
+                    player.containerMenu.broadcastChanges();
+                    player.inventoryMenu.broadcastChanges();
                 }
             } else {
                 InteractionHand hand = packet.isMainHand ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
@@ -73,8 +77,13 @@ public class SortBackpackPacket {
                     handler.deserializeNBT(stack.getTag().getCompound("inventory"));
                 }
 
-                ItemSortHelper.sortAndPull(handler, player);
+                ItemSortHelper.pullMatchingFromPlayer(handler, player);
+                ItemSortHelper.sortInternal(handler);
                 stack.getOrCreateTag().put("inventory", handler.serializeNBT());
+
+                player.getInventory().setChanged();
+                player.containerMenu.broadcastChanges();
+                player.inventoryMenu.broadcastChanges();
             }
         });
         ctx.get().setPacketHandled(true);

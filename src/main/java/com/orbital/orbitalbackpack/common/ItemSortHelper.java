@@ -3,6 +3,7 @@ package com.orbital.orbitalbackpack.common;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -10,54 +11,51 @@ import java.util.List;
 
 public class ItemSortHelper {
 
-    private enum SortCategory {
-        WEAPON,
-        TOOL,
-        ARMOR,
-        GEM,
-        ORE,
-        INGOT,
-        FOOD,
-        BLOCK,
-        MISC
-    }
-
-    public static void sortAndPull(ItemStackHandler handler, Player player) {
-        pullMatchingFromPlayer(handler, player);
-        sortInternal(handler);
-    }
-
-    public static void sortOnly(ItemStackHandler handler) {
-        sortInternal(handler);
-    }
-
-    private static void pullMatchingFromPlayer(ItemStackHandler handler, Player player) {
+    public static void pullMatchingFromPlayer(ItemStackHandler handler, Player player) {
         for (int playerSlot = 0; playerSlot < player.getInventory().getContainerSize(); playerSlot++) {
             ItemStack playerStack = player.getInventory().getItem(playerSlot);
             if (playerStack.isEmpty()) continue;
 
+            Item playerItem = playerStack.getItem();
+            if (!backpackContainsItem(handler, playerItem)) continue;
+
             for (int backpackSlot = 0; backpackSlot < handler.getSlots(); backpackSlot++) {
                 ItemStack backpackStack = handler.getStackInSlot(backpackSlot);
                 if (backpackStack.isEmpty()) continue;
+                if (backpackStack.getItem() != playerItem) continue;
 
-                if (ItemStack.isSameItemSameTags(playerStack, backpackStack)) {
-                    int space = backpackStack.getMaxStackSize() - backpackStack.getCount();
-                    if (space <= 0) continue;
+                int space = backpackStack.getMaxStackSize() - backpackStack.getCount();
+                if (space <= 0) continue;
 
-                    int toMove = Math.min(space, playerStack.getCount());
-                    backpackStack.grow(toMove);
-                    playerStack.shrink(toMove);
+                int toMove = Math.min(space, playerStack.getCount());
+                ItemStack updatedBackpack = backpackStack.copy();
+                updatedBackpack.setCount(backpackStack.getCount() + toMove);
+                handler.setStackInSlot(backpackSlot, updatedBackpack);
 
-                    if (playerStack.isEmpty()) {
-                        player.getInventory().setItem(playerSlot, ItemStack.EMPTY);
-                        break;
-                    }
-                }
+                playerStack.shrink(toMove);
+                player.getInventory().setItem(playerSlot, playerStack.isEmpty() ? ItemStack.EMPTY : playerStack);
+                if (playerStack.isEmpty()) break;
+            }
+
+            playerStack = player.getInventory().getItem(playerSlot);
+            if (playerStack.isEmpty()) continue;
+
+            for (int backpackSlot = 0; backpackSlot < handler.getSlots(); backpackSlot++) {
+                if (!handler.getStackInSlot(backpackSlot).isEmpty()) continue;
+
+                int toMove = Math.min(playerStack.getMaxStackSize(), playerStack.getCount());
+                ItemStack newStack = playerStack.copy();
+                newStack.setCount(toMove);
+                handler.setStackInSlot(backpackSlot, newStack);
+
+                playerStack.shrink(toMove);
+                player.getInventory().setItem(playerSlot, playerStack.isEmpty() ? ItemStack.EMPTY : playerStack);
+                if (playerStack.isEmpty()) break;
             }
         }
     }
 
-    private static void sortInternal(ItemStackHandler handler) {
+    public static void sortInternal(ItemStackHandler handler) {
         List<ItemStack> items = new ArrayList<>();
 
         for (int i = 0; i < handler.getSlots(); i++) {
@@ -66,25 +64,34 @@ public class ItemSortHelper {
         }
 
         items = mergeStacks(items);
-
         items.sort(Comparator
-                .comparingInt((ItemStack s) -> getCategory(s).ordinal())
-                .thenComparing(s -> s.getItem().getClass().getSimpleName())
-                .thenComparing(s -> s.getHoverName().getString()));
+                .comparingInt(ItemSortHelper::getCategoryIndex)
+                .thenComparing(stack -> {
+                    var key = ForgeRegistries.ITEMS.getKey(stack.getItem());
+                    return key != null ? key.getPath() : "";
+                }));
 
         for (int i = 0; i < handler.getSlots(); i++) {
             handler.setStackInSlot(i, i < items.size() ? items.get(i) : ItemStack.EMPTY);
         }
     }
 
-    private static List<ItemStack> mergeStacks(List<ItemStack> items) {
+    private static boolean backpackContainsItem(ItemStackHandler handler, Item item) {
+        for (int i = 0; i < handler.getSlots(); i++) {
+            if (handler.getStackInSlot(i).getItem() == item) return true;
+        }
+        return false;
+    }
+
+    private static List<ItemStack> mergeStacks(List<ItemStack> stacks) {
         List<ItemStack> merged = new ArrayList<>();
 
-        for (ItemStack incoming : items) {
+        for (ItemStack incoming : stacks) {
             ItemStack remaining = incoming.copy();
             for (ItemStack existing : merged) {
-                if (!ItemStack.isSameItemSameTags(existing, remaining)) continue;
+                if (existing.getItem() != remaining.getItem()) continue;
                 int space = existing.getMaxStackSize() - existing.getCount();
+                if (space <= 0) continue;
                 int toAdd = Math.min(space, remaining.getCount());
                 existing.grow(toAdd);
                 remaining.shrink(toAdd);
@@ -96,46 +103,26 @@ public class ItemSortHelper {
         return merged;
     }
 
-    private static SortCategory getCategory(ItemStack stack) {
+    private static int getCategoryIndex(ItemStack stack) {
         Item item = stack.getItem();
 
         if (item instanceof SwordItem || item instanceof BowItem
-                || item instanceof CrossbowItem || item instanceof TridentItem) {
-            return SortCategory.WEAPON;
-        }
-
+                || item instanceof CrossbowItem || item instanceof TridentItem) return 0;
         if (item instanceof PickaxeItem || item instanceof AxeItem || item instanceof ShovelItem
-                || item instanceof HoeItem || item instanceof ShearsItem || item instanceof FlintAndSteelItem) {
-            return SortCategory.TOOL;
-        }
+                || item instanceof HoeItem || item instanceof ShearsItem
+                || item instanceof FlintAndSteelItem) return 1;
+        if (item instanceof ArmorItem) return 2;
 
-        if (item instanceof ArmorItem) {
-            return SortCategory.ARMOR;
-        }
+        var key = ForgeRegistries.ITEMS.getKey(item);
+        String id = key != null ? key.getPath() : "";
 
-        String id = item.builtInRegistryHolder().key().location().getPath();
+        if (id.contains("_ingot") || id.contains("_nugget") || id.contains("netherite_scrap")) return 3;
+        if (id.contains("diamond") || id.contains("emerald")
+                || id.contains("amethyst") || id.contains("quartz")) return 4;
+        if (id.contains("_ore") || id.startsWith("raw_")) return 5;
+        if (item instanceof BlockItem) return 6;
+        if (item.isEdible()) return 7;
 
-        if (id.contains("diamond") || id.contains("emerald") || id.contains("amethyst")
-                || id.contains("quartz") || id.contains("pearl") || id.contains("crystal")) {
-            return SortCategory.GEM;
-        }
-
-        if (id.contains("_ore") || id.contains("raw_")) {
-            return SortCategory.ORE;
-        }
-
-        if (id.contains("_ingot") || id.contains("_nugget") || id.contains("_scrap") || id.contains("_shard")) {
-            return SortCategory.INGOT;
-        }
-
-        if (item instanceof BlockItem) {
-            return SortCategory.BLOCK;
-        }
-
-        if (item.isEdible()) {
-            return SortCategory.FOOD;
-        }
-
-        return SortCategory.MISC;
+        return 8;
     }
 }
