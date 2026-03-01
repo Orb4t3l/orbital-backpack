@@ -1,6 +1,5 @@
 package com.orbital.orbitalbackpack.network;
 
-import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.items.Backpack;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,23 +30,14 @@ public class MagnetTogglePacket {
             ServerPlayer player = ctx.get().getSender();
             if (player == null) return;
 
-            for (InteractionHand hand : InteractionHand.values()) {
-                ItemStack stack = player.getItemInHand(hand);
-                if (stack.getItem() instanceof Backpack) {
-                    boolean current = stack.getOrCreateTag().getBoolean("magnet");
-                    stack.getOrCreateTag().putBoolean("magnet", !current);
-                    return;
-                }
-            }
+            InteractionHand hand = packet.isMainHand ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+            ItemStack stack = player.getItemInHand(hand);
 
-            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                ItemStack stack = player.getInventory().getItem(i);
-                if (stack.getItem() instanceof Backpack) {
-                    boolean current = stack.getOrCreateTag().getBoolean("magnet");
-                    stack.getOrCreateTag().putBoolean("magnet", !current);
-                    return;
-                }
-            }
+            if (!(stack.getItem() instanceof Backpack)) return;
+            if (!stack.hasTag() || !stack.getTag().getBoolean("magnet_unlocked")) return;
+
+            boolean current = stack.getTag().getBoolean("magnet");
+            stack.getTag().putBoolean("magnet", !current);
         });
         ctx.get().setPacketHandled(true);
     }

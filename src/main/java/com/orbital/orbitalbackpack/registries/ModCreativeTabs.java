@@ -13,7 +13,8 @@ import static com.orbital.orbitalbackpack.OrbitalBackpack.MODID;
 
 public class ModCreativeTabs {
 
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
+            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
     public static final RegistryObject<CreativeModeTab> BACKPACK_TAB = CREATIVE_MODE_TABS.register("backpack_tab", () ->
             CreativeModeTab.builder()
@@ -24,6 +25,7 @@ public class ModCreativeTabs {
                         for (BackpackTier tier : BackpackTier.values()) {
                             output.accept(ModItems.BACKPACKS.get(tier).get());
                         }
+                        output.accept(ModItems.MAGNET_UPGRADE.get());
                     }).build());
 
     public static void register(IEventBus eventBus) {

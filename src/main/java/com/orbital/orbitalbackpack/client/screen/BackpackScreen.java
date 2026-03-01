@@ -28,6 +28,8 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
             new ResourceLocation("orbitalbackpack", "textures/gui/withdraw_button.png");
     private static final ResourceLocation MAGNET_BUTTON_TEXTURE =
             new ResourceLocation("orbitalbackpack", "textures/gui/magnet_button.png");
+    private static final ResourceLocation MAGNET_LOCKED_TEXTURE =
+            new ResourceLocation("orbitalbackpack", "textures/gui/magnet_locked_button.png");
 
     private final BackpackTier tier;
     private EditBox searchBox;
@@ -38,7 +40,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
     private static final int SEARCH_BOX_HEIGHT = 12;
     private static final int BUTTON_SIZE = 12;
     private static final int BUTTON_GAP = 3;
-    private static final int MAGNET_ACTIVE_COLOR = 0x5500AAFF;
+    private static final int MAGNET_ACTIVE_COLOR = 0x3300AAFF;
 
     public BackpackScreen(BackpackMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -106,15 +108,39 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         currentY += BUTTON_SIZE + BUTTON_GAP;
 
         if (!this.menu.isBlockBased()) {
+            boolean unlocked = isMagnetUnlocked();
             ImageButton magnetButton = new ImageButton(
                     sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
                     0, 0, BUTTON_SIZE,
-                    MAGNET_BUTTON_TEXTURE, BUTTON_SIZE, BUTTON_SIZE * 2,
-                    btn -> onMagnetClicked()
+                    unlocked ? MAGNET_BUTTON_TEXTURE : MAGNET_LOCKED_TEXTURE,
+                    BUTTON_SIZE, BUTTON_SIZE * 2,
+                    btn -> { if (unlocked) onMagnetClicked(); }
             );
-            magnetButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.magnet")));
+            magnetButton.setTooltip(Tooltip.create(Component.translatable(
+                    unlocked ? "gui.orbitalbackpack.magnet" : "gui.orbitalbackpack.magnet_locked"
+            )));
+            magnetButton.active = unlocked;
             this.addRenderableWidget(magnetButton);
         }
+    }
+
+    private ItemStack getBackpackStack() {
+        if (this.minecraft == null || this.minecraft.player == null) return ItemStack.EMPTY;
+        InteractionHand hand = this.menu.getHand();
+        if (hand == null) return ItemStack.EMPTY;
+        return this.minecraft.player.getItemInHand(hand);
+    }
+
+    private boolean isMagnetUnlocked() {
+        ItemStack stack = getBackpackStack();
+        if (stack.isEmpty()) return false;
+        return stack.hasTag() && stack.getTag().getBoolean("magnet_unlocked");
+    }
+
+    private boolean isMagnetActive() {
+        ItemStack stack = getBackpackStack();
+        if (stack.isEmpty()) return false;
+        return stack.hasTag() && stack.getTag().getBoolean("magnet");
     }
 
     private void onPickupClicked() {
@@ -151,27 +177,10 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
     }
 
     private void onMagnetClicked() {
-        ModNetwork.CHANNEL.sendToServer(new MagnetTogglePacket(
-                this.menu.getHand() == InteractionHand.MAIN_HAND
-        ));
-    }
-
-    private boolean isMagnetActive() {
-        if (this.minecraft == null || this.minecraft.player == null) return false;
-        for (int i = 0; i < this.minecraft.player.getInventory().getContainerSize(); i++) {
-            ItemStack stack = this.minecraft.player.getInventory().getItem(i);
-            if (stack.getItem() == this.menu.getTier().equals(tier)
-                    && stack.hasTag()
-                    && stack.getTag().getBoolean("magnet")) {
-                return true;
-            }
-        }
         InteractionHand hand = this.menu.getHand();
         if (hand != null) {
-            ItemStack held = this.minecraft.player.getItemInHand(hand);
-            return held.hasTag() && held.getTag().getBoolean("magnet");
+            ModNetwork.CHANNEL.sendToServer(new MagnetTogglePacket(hand == InteractionHand.MAIN_HAND));
         }
-        return false;
     }
 
     @Override
@@ -191,7 +200,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
             }
         }
 
-        if (isMagnetActive()) {
+        if (!this.menu.isBlockBased() && isMagnetActive()) {
             guiGraphics.fill(
                     this.leftPos - 2, this.topPos - 2,
                     this.leftPos + this.imageWidth + 2,
@@ -202,7 +211,6 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 
         this.renderTooltip(guiGraphics, mouseX, mouseY);
         this.searchBox.render(guiGraphics, mouseX, mouseY, partialTick);
-
         guiGraphics.drawString(this.font, "Search",
                 this.leftPos + this.imageWidth + 6, this.topPos - 9, 0xFFFFFF, true);
     }

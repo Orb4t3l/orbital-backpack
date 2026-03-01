@@ -28,6 +28,7 @@ public class OrbitalBackpack {
         ModBlockEntities.register(modEventBus);
         ModCreativeTabs.register(modEventBus);
         ModMenus.MENU_TYPES.register(modEventBus);
+        ModRecipeSerializers.register(modEventBus);
 
         MinecraftForge.EVENT_BUS.register(this);
 
@@ -39,6 +40,5 @@ public class OrbitalBackpack {
     }
 
     @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-    }
+    public void onServerStarting(ServerStartingEvent event) {}
 }

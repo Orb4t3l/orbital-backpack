@@ -25,5 +25,7 @@
   "gui.orbitalbackpack.sort": "Sort items",
   "gui.orbitalbackpack.deposit": "Deposit all items",
   "gui.orbitalbackpack.withdraw": "Withdraw all items",
-  "gui.orbitalbackpack.magnet": "Toggle Magnet Mode"
+  "item.orbitalbackpack.magnet_upgrade": "Magnet Upgrade",
+  "gui.orbitalbackpack.magnet": "Toggle Magnet Mode",
+  "gui.orbitalbackpack.magnet_locked": "Locked - Craft with a Magnet Upgrade to unlock"
 }
