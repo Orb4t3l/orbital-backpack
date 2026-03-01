@@ -14,12 +14,13 @@ public class CuriosCompat {
     }
 
     public static ItemStack getBackStack(Player player) {
+        if (!isLoaded()) return ItemStack.EMPTY;
         try {
             return CuriosApi.getCuriosHelper()
                     .getCuriosHandler(player)
-                    .map((ICuriosItemHandler handler) ->
-                            handler.getStacksHandler("back")
-                                    .map(stacks -> stacks.getStacks().getStackInSlot(0))
+                    .map((ICuriosItemHandler h) ->
+                            h.getStacksHandler("back")
+                                    .map(s -> s.getStacks().getStackInSlot(0))
                                     .orElse(ItemStack.EMPTY))
                     .orElse(ItemStack.EMPTY);
         } catch (Exception e) {

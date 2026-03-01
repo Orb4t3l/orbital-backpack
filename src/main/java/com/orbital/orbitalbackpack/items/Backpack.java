@@ -17,6 +17,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
@@ -32,6 +33,9 @@ import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.theillusivec4.curios.api.CuriosCapability;
+import top.theillusivec4.curios.api.SlotContext;
+import top.theillusivec4.curios.api.type.capability.ICurio;
 
 import java.util.Optional;
 
@@ -55,20 +59,39 @@ public class Backpack extends Item {
     }
 
     private static class CurioCapabilityProvider implements ICapabilityProvider {
-        private final top.theillusivec4.curios.api.type.capability.ICurioItem curio =
-                new top.theillusivec4.curios.api.type.capability.ICurioItem() {
-                    @Override
-                    public boolean canEquip(top.theillusivec4.curios.api.SlotContext slotContext, ItemStack stack) {
-                        return slotContext.identifier().equals("back");
-                    }
-                };
 
-        private final LazyOptional<top.theillusivec4.curios.api.type.capability.ICurioItem> lazyOptional =
-                LazyOptional.of(() -> curio);
+        private final ICurio curio = new ICurio() {
+            @Override
+            public ItemStack getStack() {
+                return ItemStack.EMPTY;
+            }
+
+            @Override
+            public void curioTick(SlotContext slotContext) {}
+
+            @Override
+            public boolean canEquip(SlotContext slotContext) {
+                return slotContext.identifier().equals("back");
+            }
+
+            @Override
+            public boolean canUnequip(SlotContext slotContext) {
+                return true;
+            }
+
+            @Override
+            public ICurio.SoundInfo getEquipSound(SlotContext slotContext) {
+                return new ICurio.SoundInfo(
+                        net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_LEATHER, 1.0f, 1.0f);
+            }
+        };
+
+        private final LazyOptional<ICurio> lazyOptional = LazyOptional.of(() -> curio);
 
         @Override
-        public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-            if (cap == top.theillusivec4.curios.api.CuriosCapability.ITEM) {
+        public @NotNull <T> LazyOptional<T> getCapability(
+                @NotNull Capability<T> cap, @Nullable Direction side) {
+            if (cap == CuriosCapability.ITEM) {
                 return lazyOptional.cast();
             }
             return LazyOptional.empty();
