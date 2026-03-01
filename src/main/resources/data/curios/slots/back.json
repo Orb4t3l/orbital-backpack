@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "size": 1,
+  "operation": "SET",
+  "entities": [
+    {
+      "type": "minecraft:player"
+    }
+  ]
+}
