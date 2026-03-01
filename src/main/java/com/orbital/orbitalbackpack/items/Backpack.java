@@ -9,6 +9,8 @@ import com.orbital.orbitalbackpack.registries.ModBlocks;
 import com.orbital.orbitalbackpack.registries.ModMenus;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -22,8 +24,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.network.NetworkHooks;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -36,31 +44,51 @@ public class Backpack extends Item {
         this.tier = tier;
     }
 
-    public BackpackTier getTier() {
-        return tier;
+    public BackpackTier getTier() { return tier; }
+
+    @Override
+    public @Nullable ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
+        if (ModList.get().isLoaded("curios")) {
+            return new CurioCapabilityProvider();
+        }
+        return super.initCapabilities(stack, nbt);
+    }
+
+    private static class CurioCapabilityProvider implements ICapabilityProvider {
+        private final top.theillusivec4.curios.api.type.capability.ICurioItem curio =
+                new top.theillusivec4.curios.api.type.capability.ICurioItem() {
+                    @Override
+                    public boolean canEquip(top.theillusivec4.curios.api.SlotContext slotContext, ItemStack stack) {
+                        return slotContext.identifier().equals("back");
+                    }
+                };
+
+        private final LazyOptional<top.theillusivec4.curios.api.type.capability.ICurioItem> lazyOptional =
+                LazyOptional.of(() -> curio);
+
+        @Override
+        public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+            if (cap == top.theillusivec4.curios.api.CuriosCapability.ITEM) {
+                return lazyOptional.cast();
+            }
+            return LazyOptional.empty();
+        }
     }
 
     @Override
     public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
         ItemStackHandler handler = new ItemStackHandler(tier.getSlots());
-
         if (stack.hasTag() && stack.getTag().contains("inventory")) {
             handler.deserializeNBT(stack.getTag().getCompound("inventory"));
         }
-
         int usedSlots = 0;
         for (int i = 0; i < handler.getSlots(); i++) {
             if (!handler.getStackInSlot(i).isEmpty()) usedSlots++;
         }
-
         boolean expanded = Screen.hasShiftDown();
-        int displayCount = expanded ? 27 : 5;
-
         return Optional.of(new BackpackTooltipComponent(
-                ItemValueHelper.getTopItems(handler, displayCount),
-                usedSlots,
-                tier.getSlots(),
-                expanded
+                ItemValueHelper.getTopItems(handler, expanded ? 27 : 5),
+                usedSlots, tier.getSlots(), expanded
         ));
     }
 
@@ -68,29 +96,24 @@ public class Backpack extends Item {
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
         Level level = context.getLevel();
-
         if (player != null && player.isCrouching()) {
             BlockPos pos = context.getClickedPos().relative(context.getClickedFace());
-
             if (level.getBlockState(pos).isAir()) {
                 if (!level.isClientSide) {
                     level.setBlockAndUpdate(pos, ModBlocks.get(tier).get().defaultBlockState());
                     BlockEntity be = level.getBlockEntity(pos);
                     if (be instanceof BackpackBlockEntity backpackBE) {
-                        ItemStack stack = context.getItemInHand();
-                        if (stack.hasTag() && stack.getTag().contains("inventory")) {
-                            backpackBE.getHandler().deserializeNBT(stack.getTag().getCompound("inventory"));
+                        ItemStack held = context.getItemInHand();
+                        if (held.hasTag() && held.getTag().contains("inventory")) {
+                            backpackBE.getHandler().deserializeNBT(held.getTag().getCompound("inventory"));
                         }
                         backpackBE.setChanged();
                     }
-                    if (!player.getAbilities().instabuild) {
-                        context.getItemInHand().shrink(1);
-                    }
+                    if (!player.getAbilities().instabuild) context.getItemInHand().shrink(1);
                 }
                 return InteractionResult.sidedSuccess(level.isClientSide);
             }
         }
-
         return InteractionResult.PASS;
     }
 
@@ -100,8 +123,10 @@ public class Backpack extends Item {
             NetworkHooks.openScreen(
                     (ServerPlayer) player,
                     new SimpleMenuProvider(
-                            (id, inv, p) -> new BackpackMenu(ModMenus.MENUS.get(tier).get(), id, inv, hand, tier),
-                            Component.translatable("item.orbitalbackpack." + tier.name().toLowerCase() + "_backpack")
+                            (id, inv, p) -> new BackpackMenu(
+                                    ModMenus.MENUS.get(tier).get(), id, inv, hand, tier),
+                            Component.translatable("item.orbitalbackpack."
+                                    + tier.name().toLowerCase() + "_backpack")
                     ),
                     buf -> {
                         buf.writeBoolean(false);

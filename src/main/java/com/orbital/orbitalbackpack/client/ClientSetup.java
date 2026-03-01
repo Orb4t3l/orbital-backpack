@@ -1,30 +1,36 @@
 package com.orbital.orbitalbackpack.client;
 
 import com.orbital.orbitalbackpack.OrbitalBackpack;
-import com.orbital.orbitalbackpack.blocks.BackpackBlockEntity;
 import com.orbital.orbitalbackpack.client.renderer.BackpackBlockEntityRenderer;
 import com.orbital.orbitalbackpack.client.screen.BackpackScreen;
+import com.orbital.orbitalbackpack.client.tooltip.BackpackClientTooltipComponent;
+import com.orbital.orbitalbackpack.client.tooltip.BackpackTooltipComponent;
 import com.orbital.orbitalbackpack.common.BackpackTier;
-import com.orbital.orbitalbackpack.items.Backpack;
 import com.orbital.orbitalbackpack.registries.ModBlockEntities;
 import com.orbital.orbitalbackpack.registries.ModItems;
 import com.orbital.orbitalbackpack.registries.ModMenus;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import com.orbital.orbitalbackpack.client.tooltip.BackpackClientTooltipComponent;
-import com.orbital.orbitalbackpack.client.tooltip.BackpackTooltipComponent;
+import org.lwjgl.glfw.GLFW;
 
 @Mod.EventBusSubscriber(modid = OrbitalBackpack.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class ClientSetup {
+
+    public static final KeyMapping OPEN_BACK_BACKPACK = new KeyMapping(
+            "key.orbitalbackpack.open_back_backpack",
+            GLFW.GLFW_KEY_B,
+            "key.categories.orbitalbackpack"
+    );
 
     private ClientSetup() {}
 
@@ -33,7 +39,6 @@ public final class ClientSetup {
         event.enqueueWork(() -> {
             for (BackpackTier tier : BackpackTier.values()) {
                 MenuScreens.register(ModMenus.MENUS.get(tier).get(), BackpackScreen::new);
-
                 ItemProperties.register(
                         ModItems.BACKPACKS.get(tier).get(),
                         new ResourceLocation(OrbitalBackpack.MODID, "open"),
@@ -45,9 +50,14 @@ public final class ClientSetup {
                         }
                 );
             }
-
-            BlockEntityRenderers.register(ModBlockEntities.BACKPACK_BE.get(), BackpackBlockEntityRenderer::new);
+            BlockEntityRenderers.register(ModBlockEntities.BACKPACK_BE.get(),
+                    BackpackBlockEntityRenderer::new);
         });
+    }
+
+    @SubscribeEvent
+    public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+        event.register(OPEN_BACK_BACKPACK);
     }
 
     @SubscribeEvent

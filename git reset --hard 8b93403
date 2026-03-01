@@ -1,0 +1,30 @@
+[33mb0f88dc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m i cant do this man im gonna lose i
+[33m98b3335[m I AM SO FUCKING DONE, I HAD TO REPROGRAM MY ENTIRE MOD FROM SCRATCH BECAUSE CURIOSU DOESNT OWRK
+[33m8b93403[m GIGANTIC PUSH (check desc)
+[33mbeb3f6d[m added recipes for smithing tables and recipe stuff
+[33m303ec70[m added magnet icon and fixed some bugs
+[33m16e7d5d[m added magnet feature
+[33m49a85d2[m fixed deposit texts, added a new expanded tooltip, and fixed backpack script
+[33ma439183[m added withdraw all and fixed being able to put backpacks inside of packpacks
+[33mffa9f20[m added new deposit button
+[33m387da93[m finally fixed how the sorting works
+[33m4e31746[m updated sorting to work maybe?
+[33ma819922[m added sorting and sorthelpers as well as a button for it
+[33md7fde89[m added pickup buttons and stuff
+[33m35ddd02[m added pickup packets, a new pickup button (for when its on the ground) and updated the menu and screen
+[33m29629f9[m added new textures, fixed search system, fixed screen, fixed gui textures and text, and added tooltips
+[33m72cbcd0[m GIGIATNIC PUSH (CHECK DESC)
+[33me821f9f[m fixing search feature and english file
+[33m46d11fd[m added a TON of optimization, mod is like 60% done now
+[33me4c731d[m trying to optimize everything with enums cuz i gay
+[33mf6139cc[m added bytebuff stuff, and honestly losing my mind
+[33m6f0b997[m maybe got slot system working?
+[33m00f1fd2[m added a client setupid and fixed backpack items
+[33ma615b65[m fixed menu and screen issue and added modmenus
+[33m301d5dd[m added menu and screen logic
+[33m9824d51[m tried understanding screens, figured out how sounds work, and figured out resourcelocations
+[33med5e619[m added some deffered register stuff, got the language working, and tried to add model and texture
+[33m20c0e8a[m added moditems tab and got item generation working possibly
+[33m2d900fc[m added some main registry folders and changed it to a backpack mod
+[33m924cb89[m initialize
+[33mf6b2e47[m Initial commit
