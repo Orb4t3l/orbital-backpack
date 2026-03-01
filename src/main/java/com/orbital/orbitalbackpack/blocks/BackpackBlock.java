@@ -13,6 +13,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -21,6 +23,7 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.level.block.Blocks;
+import com.orbital.orbitalbackpack.registries.ModBlockEntities;
 
 import javax.annotation.Nullable;
 
@@ -43,7 +46,7 @@ public class BackpackBlock extends BaseEntityBlock {
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
+        return RenderShape.ENTITYBLOCK_ANIMATED;
     }
 
     @Nullable
@@ -52,17 +55,26 @@ public class BackpackBlock extends BaseEntityBlock {
         return new BackpackBlockEntity(pos, state);
     }
 
+    @Nullable
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return createTickerHelper(type, ModBlockEntities.BACKPACK_BE.get(), BackpackBlockEntity::tick);
+    }
+
+    @Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+                                 InteractionHand hand, BlockHitResult hit) {
         if (!level.isClientSide) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof BackpackBlockEntity backpackBE) {
+                backpackBE.setOpen(true);
                 NetworkHooks.openScreen(
                         (ServerPlayer) player,
                         new SimpleMenuProvider(
                                 (id, inv, p) -> {
                                     var menuType = com.orbital.orbitalbackpack.registries.ModMenus.MENUS.get(tier).get();
-                                    return new com.orbital.orbitalbackpack.client.menu.BackpackMenu(menuType, id, inv, pos, tier, backpackBE.getHandler());
+                                    return new com.orbital.orbitalbackpack.client.menu.BackpackMenu(
+                                            menuType, id, inv, pos, tier, backpackBE.getHandler());
                                 },
                                 Component.translatable("item.orbitalbackpack." + tier.name().toLowerCase() + "_backpack")
                         ),

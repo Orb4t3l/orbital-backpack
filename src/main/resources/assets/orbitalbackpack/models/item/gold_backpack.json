@@ -1,0 +1,12 @@
+{
+  "parent": "item/handheld",
+  "textures": {
+    "layer0": "orbitalbackpack:item/gold_backpack"
+  },
+  "overrides": [
+    {
+      "predicate": { "orbitalbackpack:open": 1 },
+      "model": "orbitalbackpack:item/gold_backpack_open"
+    }
+  ]
+}

@@ -103,7 +103,10 @@ public class BackpackMenu extends AbstractContainerMenu {
         if (!player.level().isClientSide) {
             if (isBlockBased) {
                 BlockEntity be = player.level().getBlockEntity(blockPos);
-                if (be != null) be.setChanged();
+                if (be instanceof com.orbital.orbitalbackpack.blocks.BackpackBlockEntity backpackBE) {
+                    backpackBE.setOpen(false);
+                    backpackBE.setChanged();
+                }
             } else {
                 ItemStack stack = player.getItemInHand(hand);
                 if (stack != null) {
@@ -145,4 +148,6 @@ public class BackpackMenu extends AbstractContainerMenu {
 
         return stack;
     }
+
+
 }

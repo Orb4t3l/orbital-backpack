@@ -1,0 +1,6 @@
+{
+  "parent": "item/handheld",
+  "textures": {
+    "layer0": "orbitalbackpack:item/leather_backpack_open"
+  }
+}

@@ -1,12 +1,14 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "LLL",
-    "LCL",
-    "LLL"
+    "SLS",
+    "NCN",
+    "SLS"
   ],
   "key": {
+    "S": { "item": "minecraft:string" },
     "L": { "item": "minecraft:leather" },
+    "N": { "item": "minecraft:iron_nugget" },
     "C": { "item": "minecraft:chest" }
   },
   "result": {

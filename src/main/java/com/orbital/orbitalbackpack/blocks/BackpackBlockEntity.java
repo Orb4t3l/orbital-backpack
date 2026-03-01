@@ -12,6 +12,8 @@ public class BackpackBlockEntity extends BlockEntity {
 
     private ItemStackHandler handler;
     private boolean claimed = false;
+    private boolean open = false;
+    private int openTick = 0;
 
     public BackpackBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.BACKPACK_BE.get(), pos, state);
@@ -19,9 +21,25 @@ public class BackpackBlockEntity extends BlockEntity {
         this.handler = new ItemStackHandler(tier.getSlots());
     }
 
+    public static void tick(net.minecraft.world.level.Level level, BlockPos pos,
+                            BlockState state, BackpackBlockEntity entity) {
+        if (entity.open && entity.openTick < 10) {
+            entity.openTick++;
+        } else if (!entity.open && entity.openTick > 0) {
+            entity.openTick--;
+        }
+    }
+
     public ItemStackHandler getHandler() { return handler; }
     public boolean isClaimed() { return claimed; }
     public void setClaimed() { this.claimed = true; }
+    public boolean isOpen() { return open; }
+    public int getOpenTick() { return openTick; }
+
+    public void setOpen(boolean open) {
+        this.open = open;
+        setChanged();
+    }
 
     @Override
     public void load(CompoundTag tag) {
