@@ -3,6 +3,7 @@ package com.orbital.orbitalbackpack.client;
 import com.orbital.orbitalbackpack.OrbitalBackpack;
 import com.orbital.orbitalbackpack.capability.BackSlotCapabilityProvider;
 import com.orbital.orbitalbackpack.client.screen.BackSlotScreen;
+import com.orbital.orbitalbackpack.compat.CuriosCompat;
 import com.orbital.orbitalbackpack.items.Backpack;
 import com.orbital.orbitalbackpack.network.ModNetwork;
 import com.orbital.orbitalbackpack.network.OpenBackSlotPacket;
@@ -26,11 +27,22 @@ public class KeybindHandler {
         }
 
         if (ClientSetup.OPEN_BACK_BACKPACK.consumeClick()) {
-            mc.player.getCapability(BackSlotCapabilityProvider.BACK_SLOT).ifPresent(cap -> {
-                if (!cap.getBackStack().isEmpty() && cap.getBackStack().getItem() instanceof Backpack) {
+            boolean handled = false;
+
+            if (CuriosCompat.isLoaded()) {
+                if (CuriosCompat.hasBackpackEquipped(mc.player)) {
                     ModNetwork.CHANNEL.sendToServer(new OpenBackSlotPacket());
+                    handled = true;
                 }
-            });
+            }
+
+            if (!handled) {
+                mc.player.getCapability(BackSlotCapabilityProvider.BACK_SLOT).ifPresent(cap -> {
+                    if (!cap.getBackStack().isEmpty() && cap.getBackStack().getItem() instanceof Backpack) {
+                        ModNetwork.CHANNEL.sendToServer(new OpenBackSlotPacket());
+                    }
+                });
+            }
         }
     }
 }

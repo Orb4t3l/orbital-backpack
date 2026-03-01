@@ -22,8 +22,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.network.NetworkHooks;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -39,22 +41,42 @@ public class Backpack extends Item {
     public BackpackTier getTier() { return tier; }
 
     @Override
+    public @Nullable ICapabilityProvider initCapabilities(ItemStack stack, @Nullable net.minecraft.nbt.CompoundTag nbt) {
+        if (com.orbital.orbitalbackpack.compat.CuriosCompat.isLoaded()) {
+            return new net.minecraftforge.common.capabilities.ICapabilityProvider() {
+                private final top.theillusivec4.curios.api.type.capability.ICurioItem curio =
+                        com.orbital.orbitalbackpack.compat.CuriosCompat.makeCurioItem(Backpack.this);
+
+                @Override
+                public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(
+                        net.minecraftforge.common.capabilities.Capability<T> cap,
+                        @Nullable net.minecraft.core.Direction side) {
+                    try {
+                        var curiosCap = top.theillusivec4.curios.api.CuriosCapability.ITEM;
+                        if (curiosCap != null && cap == curiosCap) {
+                            return net.minecraftforge.common.util.LazyOptional.of(() -> curio).cast();
+                        }
+                    } catch (Exception ignored) {}
+                    return net.minecraftforge.common.util.LazyOptional.empty();
+                }
+            };
+        }
+        return super.initCapabilities(stack, nbt);
+    }
+
+    @Override
     public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
         ItemStackHandler handler = new ItemStackHandler(tier.getSlots());
         if (stack.hasTag() && stack.getTag().contains("inventory")) {
             handler.deserializeNBT(stack.getTag().getCompound("inventory"));
         }
-
         int usedSlots = 0;
         for (int i = 0; i < handler.getSlots(); i++) {
             if (!handler.getStackInSlot(i).isEmpty()) usedSlots++;
         }
-
         boolean expanded = Screen.hasShiftDown();
-        int displayCount = expanded ? 27 : 5;
-
         return Optional.of(new BackpackTooltipComponent(
-                ItemValueHelper.getTopItems(handler, displayCount),
+                ItemValueHelper.getTopItems(handler, expanded ? 27 : 5),
                 usedSlots, tier.getSlots(), expanded
         ));
     }
@@ -63,7 +85,6 @@ public class Backpack extends Item {
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
         Level level = context.getLevel();
-
         if (player != null && player.isCrouching()) {
             BlockPos pos = context.getClickedPos().relative(context.getClickedFace());
             if (level.getBlockState(pos).isAir()) {
