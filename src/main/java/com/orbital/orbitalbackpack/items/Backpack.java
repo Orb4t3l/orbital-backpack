@@ -36,14 +36,11 @@ public class Backpack extends Item {
         this.tier = tier;
     }
 
-    public BackpackTier getTier() {
-        return tier;
-    }
+    public BackpackTier getTier() { return tier; }
 
     @Override
     public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
         ItemStackHandler handler = new ItemStackHandler(tier.getSlots());
-
         if (stack.hasTag() && stack.getTag().contains("inventory")) {
             handler.deserializeNBT(stack.getTag().getCompound("inventory"));
         }
@@ -58,9 +55,7 @@ public class Backpack extends Item {
 
         return Optional.of(new BackpackTooltipComponent(
                 ItemValueHelper.getTopItems(handler, displayCount),
-                usedSlots,
-                tier.getSlots(),
-                expanded
+                usedSlots, tier.getSlots(), expanded
         ));
     }
 
@@ -71,7 +66,6 @@ public class Backpack extends Item {
 
         if (player != null && player.isCrouching()) {
             BlockPos pos = context.getClickedPos().relative(context.getClickedFace());
-
             if (level.getBlockState(pos).isAir()) {
                 if (!level.isClientSide) {
                     level.setBlockAndUpdate(pos, ModBlocks.get(tier).get().defaultBlockState());
@@ -90,7 +84,6 @@ public class Backpack extends Item {
                 return InteractionResult.sidedSuccess(level.isClientSide);
             }
         }
-
         return InteractionResult.PASS;
     }
 
@@ -100,10 +93,13 @@ public class Backpack extends Item {
             NetworkHooks.openScreen(
                     (ServerPlayer) player,
                     new SimpleMenuProvider(
-                            (id, inv, p) -> new BackpackMenu(ModMenus.MENUS.get(tier).get(), id, inv, hand, tier),
-                            Component.translatable("item.orbitalbackpack." + tier.name().toLowerCase() + "_backpack")
+                            (id, inv, p) -> new BackpackMenu(
+                                    ModMenus.MENUS.get(tier).get(), id, inv, hand, tier),
+                            Component.translatable("item.orbitalbackpack."
+                                    + tier.name().toLowerCase() + "_backpack")
                     ),
                     buf -> {
+                        buf.writeBoolean(false);
                         buf.writeBoolean(false);
                         buf.writeBoolean(hand == InteractionHand.MAIN_HAND);
                     }

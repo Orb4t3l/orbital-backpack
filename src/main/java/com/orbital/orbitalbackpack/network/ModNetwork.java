@@ -17,24 +17,20 @@ public class ModNetwork {
 
     public static void register() {
         CHANNEL.registerMessage(0, PickupBackpackPacket.class,
-                PickupBackpackPacket::encode,
-                PickupBackpackPacket::decode,
-                PickupBackpackPacket::handle);
+                PickupBackpackPacket::encode, PickupBackpackPacket::decode, PickupBackpackPacket::handle);
         CHANNEL.registerMessage(1, SortBackpackPacket.class,
-                SortBackpackPacket::encode,
-                SortBackpackPacket::decode,
-                SortBackpackPacket::handle);
+                SortBackpackPacket::encode, SortBackpackPacket::decode, SortBackpackPacket::handle);
         CHANNEL.registerMessage(2, DepositAllPacket.class,
-                DepositAllPacket::encode,
-                DepositAllPacket::decode,
-                DepositAllPacket::handle);
+                DepositAllPacket::encode, DepositAllPacket::decode, DepositAllPacket::handle);
         CHANNEL.registerMessage(3, WithdrawAllPacket.class,
-                WithdrawAllPacket::encode,
-                WithdrawAllPacket::decode,
-                WithdrawAllPacket::handle);
+                WithdrawAllPacket::encode, WithdrawAllPacket::decode, WithdrawAllPacket::handle);
         CHANNEL.registerMessage(4, MagnetTogglePacket.class,
-                MagnetTogglePacket::encode,
-                MagnetTogglePacket::decode,
-                MagnetTogglePacket::handle);
+                MagnetTogglePacket::encode, MagnetTogglePacket::decode, MagnetTogglePacket::handle);
+        CHANNEL.registerMessage(5, OpenBackSlotPacket.class,
+                OpenBackSlotPacket::encode, OpenBackSlotPacket::decode, OpenBackSlotPacket::handle);
+        CHANNEL.registerMessage(6, SetBackSlotPacket.class,
+                SetBackSlotPacket::encode, SetBackSlotPacket::decode, SetBackSlotPacket::handle);
+        CHANNEL.registerMessage(7, SyncBackSlotPacket.class,
+                SyncBackSlotPacket::encode, SyncBackSlotPacket::decode, SyncBackSlotPacket::handle);
     }
 }

@@ -27,5 +27,11 @@
   "gui.orbitalbackpack.withdraw": "Withdraw all items",
   "item.orbitalbackpack.magnet_upgrade": "Magnet Upgrade",
   "gui.orbitalbackpack.magnet": "Toggle Magnet Mode",
-  "gui.orbitalbackpack.magnet_locked": "Locked - Craft with a Magnet Upgrade to unlock"
+  "gui.orbitalbackpack.magnet_locked": "Locked - Craft with a Magnet Upgrade to unlock",
+  "key.orbitalbackpack.open_back_backpack": "Open Back Backpack",
+  "key.categories.orbitalbackpack": "Orbital Backpack",
+  "key.orbitalbackpack.open_back_slot": "Open Back Slot",
+  "gui.orbitalbackpack.back_slot": "Back Slot",
+  "gui.orbitalbackpack.back_slot_hint": "Click to equip/remove",
+  "gui.orbitalbackpack.back_slot_empty": "Empty - place a backpack here"
 }

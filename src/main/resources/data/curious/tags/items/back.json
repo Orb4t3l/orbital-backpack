@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "orbitalbackpack:leather_backpack",
+    "orbitalbackpack:gold_backpack",
+    "orbitalbackpack:iron_backpack",
+    "orbitalbackpack:diamond_backpack",
+    "orbitalbackpack:netherite_backpack"
+  ]
+}

@@ -13,6 +13,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
 public class BackpackMenu extends AbstractContainerMenu {
@@ -23,12 +24,15 @@ public class BackpackMenu extends AbstractContainerMenu {
     private final InteractionHand hand;
     private final BlockPos blockPos;
     private final boolean isBlockBased;
+    private final boolean isCurioSlot;
+    private ItemStack curioStack = ItemStack.EMPTY;
 
     public BackpackMenu(MenuType<?> menuType, int id, Inventory inv, InteractionHand hand, BackpackTier tier) {
         super(menuType, id);
         this.hand = hand;
         this.blockPos = null;
         this.isBlockBased = false;
+        this.isCurioSlot = false;
         this.player = inv.player;
         this.tier = tier;
         this.handler = new ItemStackHandler(tier.getSlots());
@@ -41,14 +45,35 @@ public class BackpackMenu extends AbstractContainerMenu {
         buildSlots(inv);
     }
 
-    public BackpackMenu(MenuType<?> menuType, int id, Inventory inv, BlockPos blockPos, BackpackTier tier, ItemStackHandler existingHandler) {
+    public BackpackMenu(MenuType<?> menuType, int id, Inventory inv, BlockPos blockPos,
+                        BackpackTier tier, ItemStackHandler existingHandler) {
         super(menuType, id);
         this.hand = null;
         this.blockPos = blockPos;
         this.isBlockBased = true;
+        this.isCurioSlot = false;
         this.player = inv.player;
         this.tier = tier;
         this.handler = existingHandler;
+
+        buildSlots(inv);
+    }
+
+    public BackpackMenu(MenuType<?> menuType, int id, Inventory inv,
+                        BackpackTier tier, ItemStack curioStack) {
+        super(menuType, id);
+        this.hand = null;
+        this.blockPos = null;
+        this.isBlockBased = false;
+        this.isCurioSlot = true;
+        this.player = inv.player;
+        this.tier = tier;
+        this.curioStack = curioStack;
+        this.handler = new ItemStackHandler(tier.getSlots());
+
+        if (curioStack.hasTag() && curioStack.getTag().contains("inventory")) {
+            this.handler.deserializeNBT(curioStack.getTag().getCompound("inventory"));
+        }
 
         buildSlots(inv);
     }
@@ -65,6 +90,13 @@ public class BackpackMenu extends AbstractContainerMenu {
             }
         }
 
+        boolean isCurio = buf.readBoolean();
+        if (isCurio) {
+            InteractionHand hand = buf.readBoolean() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+            ItemStack stack = inv.player.getItemInHand(hand);
+            return new BackpackMenu(menuType, id, inv, tier, stack);
+        }
+
         InteractionHand hand = buf.readBoolean() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
         return new BackpackMenu(menuType, id, inv, hand, tier);
     }
@@ -74,7 +106,8 @@ public class BackpackMenu extends AbstractContainerMenu {
         int startY = 18;
         for (int row = 0; row < tier.getRows(); row++) {
             for (int col = 0; col < 9; col++) {
-                this.addSlot(new RestrictedBackpackSlot(handler, col + row * 9, startX + col * 18, startY + row * 18));
+                this.addSlot(new RestrictedBackpackSlot(handler, col + row * 9,
+                        startX + col * 18, startY + row * 18));
             }
         }
 
@@ -93,6 +126,7 @@ public class BackpackMenu extends AbstractContainerMenu {
 
     public BackpackTier getTier() { return tier; }
     public boolean isBlockBased() { return isBlockBased; }
+    public boolean isCurioSlot() { return isCurioSlot; }
     public BlockPos getBlockPos() { return blockPos; }
     public InteractionHand getHand() { return hand; }
     public ItemStackHandler getHandler() { return handler; }
@@ -103,13 +137,15 @@ public class BackpackMenu extends AbstractContainerMenu {
         if (!player.level().isClientSide) {
             if (isBlockBased) {
                 BlockEntity be = player.level().getBlockEntity(blockPos);
-                if (be instanceof com.orbital.orbitalbackpack.blocks.BackpackBlockEntity backpackBE) {
+                if (be instanceof BackpackBlockEntity backpackBE) {
                     backpackBE.setOpen(false);
                     backpackBE.setChanged();
                 }
+            } else if (isCurioSlot) {
+                curioStack.getOrCreateTag().put("inventory", handler.serializeNBT());
             } else {
                 ItemStack stack = player.getItemInHand(hand);
-                if (stack != null) {
+                if (!stack.isEmpty()) {
                     stack.getOrCreateTag().put("inventory", handler.serializeNBT());
                 }
             }
@@ -148,6 +184,4 @@ public class BackpackMenu extends AbstractContainerMenu {
 
         return stack;
     }
-
-
 }
