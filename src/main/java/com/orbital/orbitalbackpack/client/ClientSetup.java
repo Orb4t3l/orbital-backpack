@@ -2,6 +2,7 @@ package com.orbital.orbitalbackpack.client;
 
 import com.orbital.orbitalbackpack.OrbitalBackpack;
 import com.orbital.orbitalbackpack.client.renderer.BackpackBlockEntityRenderer;
+import com.orbital.orbitalbackpack.client.renderer.CurioBackpackRenderer;
 import com.orbital.orbitalbackpack.client.screen.BackpackScreen;
 import com.orbital.orbitalbackpack.client.tooltip.BackpackClientTooltipComponent;
 import com.orbital.orbitalbackpack.client.tooltip.BackpackTooltipComponent;
@@ -12,16 +13,20 @@ import com.orbital.orbitalbackpack.registries.ModMenus;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.lwjgl.glfw.GLFW;
+import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 @Mod.EventBusSubscriber(modid = OrbitalBackpack.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class ClientSetup {
@@ -49,7 +54,16 @@ public final class ClientSetup {
                             return BackpackOpenTracker.isOpen(mc.player.getUUID()) ? 1f : 0f;
                         }
                 );
+
+                // Register curio renderer for each tier
+                if (ModList.get().isLoaded("curios")) {
+                    CuriosRendererRegistry.register(
+                            ModItems.BACKPACKS.get(tier).get(),
+                            CurioBackpackRenderer::new
+                    );
+                }
             }
+
             BlockEntityRenderers.register(ModBlockEntities.BACKPACK_BE.get(),
                     BackpackBlockEntityRenderer::new);
         });
@@ -63,5 +77,15 @@ public final class ClientSetup {
     @SubscribeEvent
     public static void onRegisterTooltips(final RegisterClientTooltipComponentFactoriesEvent event) {
         event.register(BackpackTooltipComponent.class, BackpackClientTooltipComponent::new);
+    }
+
+
+    //TODO: put model stuff
+//    public static final ModelLayerLocation BACKPACK_LAYER = new ModelLayerLocation(
+//            new ResourceLocation("orbitalbackpack", "backpack"), "main");
+//
+//    @SubscribeEvent
+//    public static void onRegisterLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
+//        event.registerLayerDefinition(BACKPACK_LAYER, BackpackModel::createBodyLayer);
     }
 }

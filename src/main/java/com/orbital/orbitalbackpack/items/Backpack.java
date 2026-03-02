@@ -48,7 +48,9 @@ public class Backpack extends Item {
         this.tier = tier;
     }
 
-    public BackpackTier getTier() { return tier; }
+    public BackpackTier getTier() {
+        return tier;
+    }
 
     @Override
     public @Nullable ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
@@ -67,7 +69,8 @@ public class Backpack extends Item {
             }
 
             @Override
-            public void curioTick(SlotContext slotContext) {}
+            public void curioTick(SlotContext slotContext) {
+            }
 
             @Override
             public boolean canEquip(SlotContext slotContext) {
@@ -152,7 +155,8 @@ public class Backpack extends Item {
                                     + tier.name().toLowerCase() + "_backpack")
                     ),
                     buf -> {
-                        buf.writeBoolean(false);
+                        buf.writeBoolean(false); // not block
+                        buf.writeBoolean(false); // not curio
                         buf.writeBoolean(hand == InteractionHand.MAIN_HAND);
                     }
             );

@@ -1,11 +1,13 @@
 package com.orbital.orbitalbackpack.events;
 
 import com.orbital.orbitalbackpack.OrbitalBackpack;
+import com.orbital.orbitalbackpack.compat.CuriosCompat;
 import com.orbital.orbitalbackpack.items.Backpack;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraft.world.phys.AABB;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.items.ItemStackHandler;
@@ -15,95 +17,93 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = OrbitalBackpack.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class MagnetEventHandler {
 
-    private static final double MAGNET_RANGE = 6.0;
+    private static int tickCounter = 0;
 
     @SubscribeEvent
-    public static void onPlayerTick(LivingEvent.LivingTickEvent event) {
-        if (!(event.getEntity() instanceof Player player)) return;
+    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        Player player = event.player;
         if (player.level().isClientSide) return;
-        if (player.level().getGameTime() % 5 != 0) return;
 
+        tickCounter++;
+        if (tickCounter % 5 != 0) return;
+
+        // Check player inventory first
         ItemStack magnetBackpack = findMagnetBackpack(player);
-        if (magnetBackpack == null) return;
 
-        BackpackTierInfo info = getBackpackInfo(magnetBackpack);
-        if (info == null) return;
-
-        ItemStackHandler handler = new ItemStackHandler(info.slots());
-        if (magnetBackpack.hasTag() && magnetBackpack.getTag().contains("inventory")) {
-            handler.deserializeNBT(magnetBackpack.getTag().getCompound("inventory"));
+        // If not found in inventory, check Curios back slot
+        if (magnetBackpack.isEmpty() && CuriosCompat.isLoaded()) {
+            ItemStack curioStack = CuriosCompat.getBackStack(player);
+            if (!curioStack.isEmpty() && curioStack.getItem() instanceof Backpack
+                    && curioStack.hasTag() && curioStack.getTag().getBoolean("magnet")) {
+                magnetBackpack = curioStack;
+            }
         }
 
-        List<ItemEntity> nearby = player.level().getEntitiesOfClass(
-                ItemEntity.class,
-                player.getBoundingBox().inflate(MAGNET_RANGE),
-                e -> !e.hasPickUpDelay() && !(e.getItem().getItem() instanceof Backpack)
-        );
+        if (magnetBackpack.isEmpty()) return;
+
+        final ItemStack backpackStack = magnetBackpack;
+        ItemStackHandler handler = new ItemStackHandler(
+                ((Backpack) backpackStack.getItem()).getTier().getSlots());
+        if (backpackStack.hasTag() && backpackStack.getTag().contains("inventory")) {
+            handler.deserializeNBT(backpackStack.getTag().getCompound("inventory"));
+        }
+
+        AABB area = player.getBoundingBox().inflate(6.0);
+        List<ItemEntity> nearbyItems = player.level().getEntitiesOfClass(ItemEntity.class, area);
 
         boolean changed = false;
-        for (ItemEntity itemEntity : nearby) {
-            ItemStack dropped = itemEntity.getItem().copy();
-            ItemStack remainder = tryInsert(handler, dropped);
+        for (ItemEntity itemEntity : nearbyItems) {
+            if (itemEntity.hasPickUpDelay()) continue;
+            ItemStack itemStack = itemEntity.getItem();
+            if (itemStack.getItem() instanceof Backpack) continue;
 
-            if (remainder.getCount() < dropped.getCount()) {
+            if (tryInsert(handler, itemStack)) {
                 changed = true;
-                if (remainder.isEmpty()) {
+                if (itemStack.isEmpty()) {
                     itemEntity.discard();
-                } else {
-                    itemEntity.setItem(remainder);
                 }
             }
         }
 
         if (changed) {
-            magnetBackpack.getOrCreateTag().put("inventory", handler.serializeNBT());
+            backpackStack.getOrCreateTag().put("inventory", handler.serializeNBT());
         }
-    }
-
-    private static ItemStack tryInsert(ItemStackHandler handler, ItemStack stack) {
-        ItemStack remaining = stack.copy();
-
-        for (int i = 0; i < handler.getSlots(); i++) {
-            ItemStack slotStack = handler.getStackInSlot(i);
-            if (slotStack.isEmpty()) continue;
-            if (slotStack.getItem() != remaining.getItem()) continue;
-
-            int space = slotStack.getMaxStackSize() - slotStack.getCount();
-            if (space <= 0) continue;
-
-            int toMove = Math.min(space, remaining.getCount());
-            ItemStack updated = slotStack.copy();
-            updated.setCount(slotStack.getCount() + toMove);
-            handler.setStackInSlot(i, updated);
-            remaining.shrink(toMove);
-            if (remaining.isEmpty()) return ItemStack.EMPTY;
-        }
-
-        for (int i = 0; i < handler.getSlots(); i++) {
-            if (!handler.getStackInSlot(i).isEmpty()) continue;
-            handler.setStackInSlot(i, remaining.copy());
-            return ItemStack.EMPTY;
-        }
-
-        return remaining;
     }
 
     private static ItemStack findMagnetBackpack(Player player) {
         for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
             ItemStack stack = player.getInventory().getItem(i);
-            if (stack.getItem() instanceof Backpack
-                    && stack.hasTag()
-                    && stack.getTag().getBoolean("magnet")) {
+            if (!stack.isEmpty() && stack.getItem() instanceof Backpack
+                    && stack.hasTag() && stack.getTag().getBoolean("magnet")) {
                 return stack;
             }
         }
-        return null;
+        return ItemStack.EMPTY;
     }
 
-    private record BackpackTierInfo(int slots) {}
-
-    private static BackpackTierInfo getBackpackInfo(ItemStack stack) {
-        if (!(stack.getItem() instanceof Backpack backpack)) return null;
-        return new BackpackTierInfo(backpack.getTier().getSlots());
+    private static boolean tryInsert(ItemStackHandler handler, ItemStack stack) {
+        // Fill existing matching stacks first
+        for (int i = 0; i < handler.getSlots(); i++) {
+            ItemStack existing = handler.getStackInSlot(i);
+            if (!existing.isEmpty() && ItemStack.isSameItemSameTags(existing, stack)) {
+                int space = existing.getMaxStackSize() - existing.getCount();
+                if (space > 0) {
+                    int toInsert = Math.min(space, stack.getCount());
+                    existing.grow(toInsert);
+                    stack.shrink(toInsert);
+                    if (stack.isEmpty()) return true;
+                }
+            }
+        }
+        // Then empty slots
+        for (int i = 0; i < handler.getSlots(); i++) {
+            if (handler.getStackInSlot(i).isEmpty()) {
+                handler.setStackInSlot(i, stack.copy());
+                stack.setCount(0);
+                return true;
+            }
+        }
+        return false;
     }
 }
