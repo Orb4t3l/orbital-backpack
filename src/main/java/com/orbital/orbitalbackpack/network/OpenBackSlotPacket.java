@@ -37,14 +37,15 @@ public class OpenBackSlotPacket {
                     player,
                     new SimpleMenuProvider(
                             (id, inv, p) -> new BackpackMenu(
-                                    ModMenus.MENUS.get(tier).get(), id, inv,
-                                    InteractionHand.MAIN_HAND, tier),
+                                    ModMenus.MENUS.get(tier).get(),
+                                    id, inv, tier, backpackStack
+                            ),
                             Component.translatable("item.orbitalbackpack."
                                     + tier.name().toLowerCase() + "_backpack")
                     ),
                     buf -> {
-                        buf.writeBoolean(false);
-                        buf.writeBoolean(true);
+                        buf.writeBoolean(false); // not block
+                        buf.writeBoolean(true);  // is curio
                     }
             );
         });
