@@ -32,7 +32,7 @@ public class OrbitalBackpack {
 
         MinecraftForge.EVENT_BUS.register(this);
 
-        context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        net.minecraftforge.fml.ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
