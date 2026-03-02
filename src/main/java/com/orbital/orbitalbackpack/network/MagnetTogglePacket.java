@@ -5,7 +5,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.event.network.CustomPayloadEvent;
 
 import java.util.function.Supplier;
 
@@ -25,7 +25,7 @@ public class MagnetTogglePacket {
         return new MagnetTogglePacket(buf.readBoolean());
     }
 
-    public static void handle(MagnetTogglePacket packet, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(MagnetTogglePacket packet, Supplier<CustomPayloadEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player == null) return;

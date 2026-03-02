@@ -9,7 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.event.network.CustomPayloadEvent;
 
 import java.util.function.Supplier;
 
@@ -43,7 +43,7 @@ public class DepositAllPacket {
         }
     }
 
-    public static void handle(DepositAllPacket packet, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(DepositAllPacket packet, Supplier<CustomPayloadEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player == null) return;

@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.event.network.CustomPayloadEvent;
 import net.minecraftforge.network.NetworkHooks;
 
 import java.util.function.Supplier;
@@ -21,7 +21,7 @@ public class OpenBackSlotPacket {
     public static void encode(OpenBackSlotPacket packet, FriendlyByteBuf buf) {}
     public static OpenBackSlotPacket decode(FriendlyByteBuf buf) { return new OpenBackSlotPacket(); }
 
-    public static void handle(OpenBackSlotPacket packet, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(OpenBackSlotPacket packet, Supplier<CustomPayloadEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player == null) return;
