@@ -8,10 +8,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.event.network.CustomPayloadEvent;
-
-import java.util.function.Supplier;
+import net.minecraftforge.items.ItemStackHandler;
 
 public class DepositAllPacket {
 
@@ -43,71 +41,71 @@ public class DepositAllPacket {
         }
     }
 
-    public static void handle(DepositAllPacket packet, Supplier<CustomPayloadEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
-            if (player == null) return;
-            if (!(player.containerMenu instanceof BackpackMenu backpackMenu)) return;
+    // consumerMainThread already handles enqueueWork + setPacketHandled
+    public static void handle(DepositAllPacket packet, CustomPayloadEvent.Context ctx) {
+        ServerPlayer player = ctx.getSender();
+        if (player == null) return;
+        if (!(player.containerMenu instanceof BackpackMenu backpackMenu)) return;
 
-            ItemStackHandler handler = backpackMenu.getHandler();
+        ItemStackHandler handler = backpackMenu.getHandler();
 
-            for (int playerSlot = 0; playerSlot < player.getInventory().getContainerSize(); playerSlot++) {
-                ItemStack playerStack = player.getInventory().getItem(playerSlot);
-                if (playerStack.isEmpty()) continue;
-                if (playerStack.getItem() instanceof Backpack) continue;
+        for (int playerSlot = 0; playerSlot < player.getInventory().getContainerSize(); playerSlot++) {
+            ItemStack playerStack = player.getInventory().getItem(playerSlot);
+            if (playerStack.isEmpty()) continue;
+            if (playerStack.getItem() instanceof Backpack) continue;
 
-                for (int backpackSlot = 0; backpackSlot < handler.getSlots(); backpackSlot++) {
-                    ItemStack backpackStack = handler.getStackInSlot(backpackSlot);
-                    if (backpackStack.isEmpty()) continue;
-                    if (backpackStack.getItem() != playerStack.getItem()) continue;
+            // Fill existing partial stacks first
+            for (int backpackSlot = 0; backpackSlot < handler.getSlots(); backpackSlot++) {
+                ItemStack backpackStack = handler.getStackInSlot(backpackSlot);
+                if (backpackStack.isEmpty()) continue;
+                if (backpackStack.getItem() != playerStack.getItem()) continue;
 
-                    int space = backpackStack.getMaxStackSize() - backpackStack.getCount();
-                    if (space <= 0) continue;
+                int space = backpackStack.getMaxStackSize() - backpackStack.getCount();
+                if (space <= 0) continue;
 
-                    int toMove = Math.min(space, playerStack.getCount());
-                    ItemStack updatedBackpack = backpackStack.copy();
-                    updatedBackpack.setCount(backpackStack.getCount() + toMove);
-                    handler.setStackInSlot(backpackSlot, updatedBackpack);
+                int toMove = Math.min(space, playerStack.getCount());
+                ItemStack updated = backpackStack.copy();
+                updated.setCount(backpackStack.getCount() + toMove);
+                handler.setStackInSlot(backpackSlot, updated);
 
-                    playerStack.shrink(toMove);
-                    player.getInventory().setItem(playerSlot, playerStack.isEmpty() ? ItemStack.EMPTY : playerStack);
-                    if (playerStack.isEmpty()) break;
-                }
-
-                playerStack = player.getInventory().getItem(playerSlot);
-                if (playerStack.isEmpty()) continue;
-                if (playerStack.getItem() instanceof Backpack) continue;
-
-                for (int backpackSlot = 0; backpackSlot < handler.getSlots(); backpackSlot++) {
-                    if (!handler.getStackInSlot(backpackSlot).isEmpty()) continue;
-
-                    int toMove = Math.min(playerStack.getMaxStackSize(), playerStack.getCount());
-                    ItemStack toDeposit = playerStack.copy();
-                    toDeposit.setCount(toMove);
-                    handler.setStackInSlot(backpackSlot, toDeposit);
-
-                    playerStack.shrink(toMove);
-                    player.getInventory().setItem(playerSlot, playerStack.isEmpty() ? ItemStack.EMPTY : playerStack);
-                    if (playerStack.isEmpty()) break;
-                }
+                playerStack.shrink(toMove);
+                player.getInventory().setItem(playerSlot, playerStack.isEmpty() ? ItemStack.EMPTY : playerStack);
+                if (playerStack.isEmpty()) break;
             }
 
-            if (packet.isBlockBased) {
-                var be = player.serverLevel().getBlockEntity(packet.pos);
-                if (be instanceof BackpackBlockEntity backpackBE) {
-                    backpackBE.setChanged();
-                }
-            } else {
-                InteractionHand hand = packet.isMainHand ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-                ItemStack stack = player.getItemInHand(hand);
-                if (!stack.isEmpty()) {
-                    stack.getOrCreateTag().put("inventory", handler.serializeNBT());
-                }
-            }
+            // Then fill empty slots
+            playerStack = player.getInventory().getItem(playerSlot);
+            if (playerStack.isEmpty()) continue;
+            if (playerStack.getItem() instanceof Backpack) continue;
 
-            player.getInventory().setChanged();
-            player.containerMenu.broadcastChanges();
-        });
-        ctx.get().setPacketHandled(true);
+            for (int backpackSlot = 0; backpackSlot < handler.getSlots(); backpackSlot++) {
+                if (!handler.getStackInSlot(backpackSlot).isEmpty()) continue;
+
+                int toMove = Math.min(playerStack.getMaxStackSize(), playerStack.getCount());
+                ItemStack toDeposit = playerStack.copy();
+                toDeposit.setCount(toMove);
+                handler.setStackInSlot(backpackSlot, toDeposit);
+
+                playerStack.shrink(toMove);
+                player.getInventory().setItem(playerSlot, playerStack.isEmpty() ? ItemStack.EMPTY : playerStack);
+                if (playerStack.isEmpty()) break;
+            }
+        }
+
+        if (packet.isBlockBased && packet.pos != null) {
+            var be = player.serverLevel().getBlockEntity(packet.pos);
+            if (be instanceof BackpackBlockEntity backpackBE) {
+                backpackBE.setChanged();
+            }
+        } else {
+            InteractionHand hand = packet.isMainHand ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+            ItemStack stack = player.getItemInHand(hand);
+            if (!stack.isEmpty()) {
+                stack.getOrCreateTag().put("inventory", handler.serializeNBT());
+            }
+        }
+
+        player.getInventory().setChanged();
+        player.containerMenu.broadcastChanges();
     }
 }

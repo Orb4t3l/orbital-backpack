@@ -1,13 +1,12 @@
 package com.orbital.orbitalbackpack.crafting;
 
-import com.google.gson.JsonObject;
-import com.orbital.orbitalbackpack.items.Backpack;
-import com.orbital.orbitalbackpack.registries.ModItems;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.orbital.orbitalbackpack.common.BackpackTier;
+import com.orbital.orbitalbackpack.registries.ModItems;
 import com.orbital.orbitalbackpack.registries.ModRecipeSerializers;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -17,34 +16,26 @@ import net.minecraft.world.level.Level;
 
 public class BackpackSmithingRecipe implements SmithingRecipe {
 
-    private final ResourceLocation id;
-
-    public BackpackSmithingRecipe(ResourceLocation id) {
-        this.id = id;
-    }
+    // No id field - getId() is gone in 1.20.4
+    public BackpackSmithingRecipe() {}
 
     @Override
     public boolean matches(Container container, Level level) {
         ItemStack template = container.getItem(0);
         ItemStack base = container.getItem(1);
         ItemStack addition = container.getItem(2);
-
-        boolean isTemplate = template.is(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
-        boolean isDiamondBackpack = base.getItem() == ModItems.BACKPACKS.get(BackpackTier.DIAMOND).get();
-        boolean isNetheriteIngot = addition.is(Items.NETHERITE_INGOT);
-
-        return isTemplate && isDiamondBackpack && isNetheriteIngot;
+        return template.is(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE)
+                && base.getItem() == ModItems.BACKPACKS.get(BackpackTier.DIAMOND).get()
+                && addition.is(Items.NETHERITE_INGOT);
     }
 
     @Override
     public ItemStack assemble(Container container, RegistryAccess access) {
         ItemStack base = container.getItem(1);
         ItemStack result = new ItemStack(ModItems.BACKPACKS.get(BackpackTier.NETHERITE).get());
-
         if (base.hasTag()) {
             result.setTag(base.getTag().copy());
         }
-
         return result;
     }
 
@@ -69,25 +60,22 @@ public class BackpackSmithingRecipe implements SmithingRecipe {
     }
 
     @Override
-    public ResourceLocation getId() {
-        return id;
-    }
-
-    @Override
     public RecipeSerializer<?> getSerializer() {
         return ModRecipeSerializers.BACKPACK_SMITHING.get();
     }
 
     public static class Serializer implements RecipeSerializer<BackpackSmithingRecipe> {
 
+        // 1.20.4: Codec<T> not MapCodec
         @Override
-        public BackpackSmithingRecipe fromJson(ResourceLocation id, JsonObject json) {
-            return new BackpackSmithingRecipe(id);
+        public Codec<BackpackSmithingRecipe> codec() {
+            return RecordCodecBuilder.create(inst -> inst.point(new BackpackSmithingRecipe()));
         }
 
+        // 1.20.4: no ResourceLocation parameter
         @Override
-        public BackpackSmithingRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
-            return new BackpackSmithingRecipe(id);
+        public BackpackSmithingRecipe fromNetwork(FriendlyByteBuf buf) {
+            return new BackpackSmithingRecipe();
         }
 
         @Override

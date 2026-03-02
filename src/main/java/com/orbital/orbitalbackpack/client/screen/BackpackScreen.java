@@ -4,12 +4,11 @@ import com.orbital.orbitalbackpack.client.BackpackOpenTracker;
 import com.orbital.orbitalbackpack.client.menu.BackpackMenu;
 import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.network.*;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -22,17 +21,17 @@ import net.minecraftforge.network.PacketDistributor;
 public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 
     private static final ResourceLocation PICKUP_BUTTON_TEXTURE =
-            new ResourceLocation("orbitalbackpack", "textures/gui/pickup_button.png");
+            ResourceLocation.fromNamespaceAndPath("orbitalbackpack", "textures/gui/pickup_button.png");
     private static final ResourceLocation SORT_BUTTON_TEXTURE =
-            new ResourceLocation("orbitalbackpack", "textures/gui/sort_button.png");
+            ResourceLocation.fromNamespaceAndPath("orbitalbackpack", "textures/gui/sort_button.png");
     private static final ResourceLocation DEPOSIT_BUTTON_TEXTURE =
-            new ResourceLocation("orbitalbackpack", "textures/gui/deposit_button.png");
+            ResourceLocation.fromNamespaceAndPath("orbitalbackpack", "textures/gui/deposit_button.png");
     private static final ResourceLocation WITHDRAW_BUTTON_TEXTURE =
-            new ResourceLocation("orbitalbackpack", "textures/gui/withdraw_button.png");
+            ResourceLocation.fromNamespaceAndPath("orbitalbackpack", "textures/gui/withdraw_button.png");
     private static final ResourceLocation MAGNET_BUTTON_TEXTURE =
-            new ResourceLocation("orbitalbackpack", "textures/gui/magnet_button.png");
+            ResourceLocation.fromNamespaceAndPath("orbitalbackpack", "textures/gui/magnet_button.png");
     private static final ResourceLocation MAGNET_LOCKED_TEXTURE =
-            new ResourceLocation("orbitalbackpack", "textures/gui/magnet_locked_button.png");
+            ResourceLocation.fromNamespaceAndPath("orbitalbackpack", "textures/gui/magnet_locked_button.png");
 
     private final BackpackTier tier;
     private EditBox searchBox;
@@ -64,7 +63,8 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         int sideX = this.leftPos + this.imageWidth + 6;
         int currentY = this.topPos;
 
-        this.searchBox = new EditBox(this.font, sideX, currentY, SEARCH_BOX_WIDTH, SEARCH_BOX_HEIGHT, Component.literal(""));
+        this.searchBox = new EditBox(this.font, sideX, currentY, SEARCH_BOX_WIDTH, SEARCH_BOX_HEIGHT,
+                Component.literal(""));
         this.searchBox.setMaxLength(32);
         this.searchBox.setHint(Component.translatable("gui.orbitalbackpack.search"));
         this.searchBox.setResponder(text -> this.searchText = text.toLowerCase());
@@ -72,47 +72,46 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         currentY += SEARCH_BOX_HEIGHT + BUTTON_GAP;
 
         if (this.menu.isBlockBased()) {
-            ImageButton pickupButton = new ImageButton(
+            TextureButton pickupButton = new TextureButton(
                     sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
-                    0, 0, BUTTON_SIZE, PICKUP_BUTTON_TEXTURE, BUTTON_SIZE, BUTTON_SIZE * 2,
-                    btn -> onPickupClicked());
+                    0, 0, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE * 2,
+                    PICKUP_BUTTON_TEXTURE, btn -> onPickupClicked());
             pickupButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.pickup")));
             this.addRenderableWidget(pickupButton);
             currentY += BUTTON_SIZE + BUTTON_GAP;
         }
 
-        ImageButton sortButton = new ImageButton(
+        TextureButton sortButton = new TextureButton(
                 sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
-                0, 0, BUTTON_SIZE, SORT_BUTTON_TEXTURE, BUTTON_SIZE, BUTTON_SIZE * 2,
-                btn -> onSortClicked());
+                0, 0, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE * 2,
+                SORT_BUTTON_TEXTURE, btn -> onSortClicked());
         sortButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.sort")));
         this.addRenderableWidget(sortButton);
         currentY += BUTTON_SIZE + BUTTON_GAP;
 
-        ImageButton depositButton = new ImageButton(
+        TextureButton depositButton = new TextureButton(
                 sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
-                0, 0, BUTTON_SIZE, DEPOSIT_BUTTON_TEXTURE, BUTTON_SIZE, BUTTON_SIZE * 2,
-                btn -> onDepositClicked());
+                0, 0, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE * 2,
+                DEPOSIT_BUTTON_TEXTURE, btn -> onDepositClicked());
         depositButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.deposit")));
         this.addRenderableWidget(depositButton);
         currentY += BUTTON_SIZE + BUTTON_GAP;
 
-        ImageButton withdrawButton = new ImageButton(
+        TextureButton withdrawButton = new TextureButton(
                 sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
-                0, 0, BUTTON_SIZE, WITHDRAW_BUTTON_TEXTURE, BUTTON_SIZE, BUTTON_SIZE * 2,
-                btn -> onWithdrawClicked());
+                0, 0, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE * 2,
+                WITHDRAW_BUTTON_TEXTURE, btn -> onWithdrawClicked());
         withdrawButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.withdraw")));
         this.addRenderableWidget(withdrawButton);
         currentY += BUTTON_SIZE + BUTTON_GAP;
 
         if (!this.menu.isBlockBased()) {
             boolean unlocked = isMagnetUnlocked();
-            ImageButton magnetButton = new ImageButton(
+            ResourceLocation magnetTex = unlocked ? MAGNET_BUTTON_TEXTURE : MAGNET_LOCKED_TEXTURE;
+            TextureButton magnetButton = new TextureButton(
                     sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
-                    0, 0, BUTTON_SIZE,
-                    unlocked ? MAGNET_BUTTON_TEXTURE : MAGNET_LOCKED_TEXTURE,
-                    BUTTON_SIZE, BUTTON_SIZE * 2,
-                    btn -> { if (unlocked) onMagnetClicked(); });
+                    0, 0, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE * 2,
+                    magnetTex, btn -> { if (unlocked) onMagnetClicked(); });
             magnetButton.setTooltip(Tooltip.create(Component.translatable(
                     unlocked ? "gui.orbitalbackpack.magnet" : "gui.orbitalbackpack.magnet_locked")));
             magnetButton.active = unlocked;
@@ -171,41 +170,47 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 
     private void onPickupClicked() {
         if (this.menu.isBlockBased() && this.menu.getBlockPos() != null) {
-            ModNetwork.CHANNEL.sendToServer(new PickupBackpackPacket(this.menu.getBlockPos(), tier));
+            ModNetwork.CHANNEL.send(
+                    new PickupBackpackPacket(this.menu.getBlockPos(), tier),
+                    PacketDistributor.SERVER.noArg());
         }
     }
 
     private void onSortClicked() {
         boolean isBlock = this.menu.isBlockBased();
-        ModNetwork.CHANNEL.send(new SortBackpackPacket(isBlock,
-                isBlock ? this.menu.getBlockPos() : null,
-                !isBlock && this.menu.getHand() == InteractionHand.MAIN_HAND)), PacketDistributor.SERVER.noArg();
+        BlockPos pos = isBlock ? this.menu.getBlockPos() : null;
+        boolean isCurio = this.menu.isCurioSlot();
+        ModNetwork.CHANNEL.send(
+                new SortBackpackPacket(isBlock, pos, isCurio),
+                PacketDistributor.SERVER.noArg());
     }
 
     private void onDepositClicked() {
         boolean isBlock = this.menu.isBlockBased();
-        ModNetwork.CHANNEL.sendToServer(new DepositAllPacket(isBlock,
-                isBlock ? this.menu.getBlockPos() : null,
-                !isBlock && this.menu.getHand() == InteractionHand.MAIN_HAND));
+        ModNetwork.CHANNEL.send(
+                new DepositAllPacket(),
+                PacketDistributor.SERVER.noArg());
     }
 
     private void onWithdrawClicked() {
         boolean isBlock = this.menu.isBlockBased();
-        ModNetwork.CHANNEL.sendToServer(new WithdrawAllPacket(isBlock,
-                isBlock ? this.menu.getBlockPos() : null,
-                !isBlock && this.menu.getHand() == InteractionHand.MAIN_HAND));
+        ModNetwork.CHANNEL.send(
+                new WithdrawAllPacket(),
+                PacketDistributor.SERVER.noArg());
     }
 
     private void onMagnetClicked() {
         InteractionHand hand = this.menu.getHand();
         if (hand != null) {
-            ModNetwork.CHANNEL.sendToServer(new MagnetTogglePacket(hand == InteractionHand.MAIN_HAND));
+            ModNetwork.CHANNEL.send(
+                    new MagnetTogglePacket(hand == InteractionHand.MAIN_HAND),
+                    PacketDistributor.SERVER.noArg());
         }
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         if (!searchText.isEmpty()) {
@@ -221,7 +226,8 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         }
 
         if (!this.menu.isBlockBased() && isMagnetActive()) {
-            guiGraphics.fill(this.leftPos - 2, this.topPos - 2,
+            guiGraphics.fill(
+                    this.leftPos - 2, this.topPos - 2,
                     this.leftPos + this.imageWidth + 2, this.topPos + this.imageHeight + 2,
                     MAGNET_ACTIVE_COLOR);
         }
