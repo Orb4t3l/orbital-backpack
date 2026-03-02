@@ -1,6 +1,7 @@
 package com.orbital.orbitalbackpack.compat;
 
 import com.orbital.orbitalbackpack.items.Backpack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
@@ -31,5 +32,22 @@ public class CuriosCompat {
     public static boolean hasBackpackEquipped(Player player) {
         ItemStack stack = getBackStack(player);
         return !stack.isEmpty() && stack.getItem() instanceof Backpack;
+    }
+
+    // Called client-side to update curios back slot NBT after magnet sync
+    public static void updateBackStackNBT(Player player, CompoundTag inventoryNBT) {
+        if (!isLoaded()) return;
+        try {
+            CuriosApi.getCuriosHelper()
+                    .getCuriosHandler(player)
+                    .ifPresent((ICuriosItemHandler h) ->
+                            h.getStacksHandler("back").ifPresent(stacks -> {
+                                ItemStack stack = stacks.getStacks().getStackInSlot(0);
+                                if (!stack.isEmpty()) {
+                                    stack.getOrCreateTag().put("inventory", inventoryNBT);
+                                }
+                            })
+                    );
+        } catch (Exception ignored) {}
     }
 }

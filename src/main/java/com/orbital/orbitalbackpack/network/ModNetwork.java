@@ -28,5 +28,7 @@ public class ModNetwork {
                 MagnetTogglePacket::encode, MagnetTogglePacket::decode, MagnetTogglePacket::handle);
         CHANNEL.registerMessage(5, OpenBackSlotPacket.class,
                 OpenBackSlotPacket::encode, OpenBackSlotPacket::decode, OpenBackSlotPacket::handle);
+        CHANNEL.registerMessage(6, SyncInventoryNBTPacket.class,
+                SyncInventoryNBTPacket::encode, SyncInventoryNBTPacket::decode, SyncInventoryNBTPacket::handle);
     }
 }
