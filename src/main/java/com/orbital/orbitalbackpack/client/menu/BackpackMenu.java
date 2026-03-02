@@ -142,6 +142,14 @@ public class BackpackMenu extends AbstractContainerMenu {
     public InteractionHand getHand() { return hand; }
     public ItemStackHandler getHandler() { return handler; }
 
+    public void insertFromMagnet(ItemStackHandler source) {
+        // Copy all slot contents from the magnet's handler into this menu's handler
+        for (int i = 0; i < handler.getSlots() && i < source.getSlots(); i++) {
+            handler.setStackInSlot(i, source.getStackInSlot(i).copy());
+        }
+        broadcastChanges();
+    }
+
     @Override
     public void removed(Player player) {
         super.removed(player);

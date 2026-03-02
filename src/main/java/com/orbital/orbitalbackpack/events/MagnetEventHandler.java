@@ -1,6 +1,7 @@
 package com.orbital.orbitalbackpack.events;
 
 import com.orbital.orbitalbackpack.OrbitalBackpack;
+import com.orbital.orbitalbackpack.client.menu.BackpackMenu;
 import com.orbital.orbitalbackpack.compat.CuriosCompat;
 import com.orbital.orbitalbackpack.items.Backpack;
 import com.orbital.orbitalbackpack.network.ModNetwork;
@@ -30,7 +31,7 @@ public class MagnetEventHandler {
         if (!(player instanceof ServerPlayer serverPlayer)) return;
         if (player.tickCount % 5 != 0) return;
 
-        // Find magnet backpack in inventory
+        // Find magnet backpack
         int inventorySlot = -1;
         ItemStack backpackStack = ItemStack.EMPTY;
 
@@ -61,14 +62,26 @@ public class MagnetEventHandler {
         if (backpackStack.isEmpty()) return;
         if (!(backpackStack.getItem() instanceof Backpack backpack)) return;
 
-        // Deserialize handler
-        ItemStackHandler handler = new ItemStackHandler(backpack.getTier().getSlots());
-        if (backpackStack.hasTag() && backpackStack.getTag().contains("inventory")) {
-            try {
-                handler.deserializeNBT(backpackStack.getTag().getCompound("inventory"));
-            } catch (Exception e) {
-                OrbitalBackpack.LOGGER.error("Magnet: failed to read backpack inventory", e);
-                return;
+        // Check if player currently has a BackpackMenu open
+        // If so, use its live handler directly to avoid stale copy overwrite on close
+        BackpackMenu openMenu = null;
+        if (serverPlayer.containerMenu instanceof BackpackMenu bm) {
+            openMenu = bm;
+        }
+
+        // Build working handler — either from the open menu or from NBT
+        ItemStackHandler handler;
+        if (openMenu != null) {
+            handler = openMenu.getHandler();
+        } else {
+            handler = new ItemStackHandler(backpack.getTier().getSlots());
+            if (backpackStack.hasTag() && backpackStack.getTag().contains("inventory")) {
+                try {
+                    handler.deserializeNBT(backpackStack.getTag().getCompound("inventory"));
+                } catch (Exception e) {
+                    OrbitalBackpack.LOGGER.error("Magnet: failed to read backpack inventory", e);
+                    return;
+                }
             }
         }
 
@@ -97,16 +110,20 @@ public class MagnetEventHandler {
                 } else {
                     itemEntity.setItem(remaining);
                 }
-                // Play pickup sound feedback
                 player.take(itemEntity, before.getCount() - remaining.getCount());
             }
         }
 
-        if (changed) {
-            // Write new NBT back to the server-side stack
-            backpackStack.getOrCreateTag().put("inventory", handler.serializeNBT());
+        if (!changed) return;
 
-            // Force sync to client — client copy won't update otherwise
+        if (openMenu != null) {
+            // Menu is open — push updated handler back to client via broadcastChanges
+            // Also write to stack NBT so it saves correctly on close
+            backpackStack.getOrCreateTag().put("inventory", handler.serializeNBT());
+            openMenu.broadcastChanges();
+        } else {
+            // Menu is closed — write to stack NBT and send explicit sync packet
+            backpackStack.getOrCreateTag().put("inventory", handler.serializeNBT());
             int syncSlot = isCurio ? -1 : inventorySlot;
             ModNetwork.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> serverPlayer),
@@ -119,7 +136,7 @@ public class MagnetEventHandler {
         if (stack.isEmpty()) return ItemStack.EMPTY;
         ItemStack remaining = stack.copy();
 
-        // Pass 1: partial stacks
+        // Pass 1: fill partial stacks
         for (int i = 0; i < handler.getSlots() && !remaining.isEmpty(); i++) {
             ItemStack inSlot = handler.getStackInSlot(i);
             if (!inSlot.isEmpty() && ItemStack.isSameItemSameTags(inSlot, remaining)) {
@@ -127,7 +144,7 @@ public class MagnetEventHandler {
             }
         }
 
-        // Pass 2: empty slots
+        // Pass 2: fill empty slots
         for (int i = 0; i < handler.getSlots() && !remaining.isEmpty(); i++) {
             if (handler.getStackInSlot(i).isEmpty()) {
                 remaining = handler.insertItem(i, remaining, false);
