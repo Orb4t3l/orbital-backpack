@@ -1,11 +1,13 @@
 package com.orbital.orbitalbackpack.network;
 
-import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.client.menu.BackpackMenu;
+import com.orbital.orbitalbackpack.items.Backpack;
 import com.orbital.orbitalbackpack.registries.ModMenus;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.network.CustomPayloadEvent;
 
@@ -33,13 +35,20 @@ public class OpenBackpackPacket {
         if (player == null) return;
 
         ItemStack stack = player.getInventory().getItem(packet.slot);
-        if (stack.isEmpty()) return;
+        if (stack.isEmpty() || !(stack.getItem() instanceof Backpack backpack)) return;
 
-        player.openMenu(BackpackMenu.getMenuProvider(stack, packet.slot, false, false, packet.isMainHand),
-                buf -> {
-                    buf.writeBoolean(false);
-                    buf.writeBoolean(false);
-                    buf.writeBoolean(packet.isMainHand);
-                });
+        var tier = backpack.getTier();
+        var menuType = ModMenus.MENUS.get(tier).get();
+        InteractionHand hand = packet.isMainHand ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+        boolean mainHand = packet.isMainHand;
+
+        player.openMenu(new SimpleMenuProvider(
+                (id, inv, p) -> new BackpackMenu(menuType, id, inv, hand, tier),
+                Component.empty()
+        ), buf -> {
+            buf.writeBoolean(false); // isBlock
+            buf.writeBoolean(false); // isCurio
+            buf.writeBoolean(mainHand);
+        });
     }
 }

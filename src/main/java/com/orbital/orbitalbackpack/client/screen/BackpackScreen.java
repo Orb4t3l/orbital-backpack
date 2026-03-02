@@ -17,6 +17,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.SlotItemHandler;
+import net.minecraftforge.network.PacketDistributor;
 
 public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 
@@ -176,9 +177,9 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 
     private void onSortClicked() {
         boolean isBlock = this.menu.isBlockBased();
-        ModNetwork.CHANNEL.sendToServer(new SortBackpackPacket(isBlock,
+        ModNetwork.CHANNEL.send(new SortBackpackPacket(isBlock,
                 isBlock ? this.menu.getBlockPos() : null,
-                !isBlock && this.menu.getHand() == InteractionHand.MAIN_HAND));
+                !isBlock && this.menu.getHand() == InteractionHand.MAIN_HAND)), PacketDistributor.SERVER.noArg();
     }
 
     private void onDepositClicked() {

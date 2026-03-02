@@ -125,10 +125,8 @@ public class MagnetEventHandler {
             // Menu is closed — write to stack NBT and send explicit sync packet
             backpackStack.getOrCreateTag().put("inventory", handler.serializeNBT());
             int syncSlot = isCurio ? -1 : inventorySlot;
-            ModNetwork.CHANNEL.send(
-                    PacketDistributor.PLAYER.with(() -> serverPlayer),
-                    new SyncInventoryNBTPacket(syncSlot, handler.serializeNBT())
-            );
+            ModNetwork.CHANNEL.send(new SyncInventoryNBTPacket(syncSlot, handler.serializeNBT()),
+                    PacketDistributor.PLAYER.with(serverPlayer));
         }
     }
 

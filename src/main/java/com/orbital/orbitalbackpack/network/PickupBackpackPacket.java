@@ -7,7 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.event.network.CustomPayloadEvent;
 
 import java.util.function.Supplier;
 
@@ -30,7 +30,7 @@ public class PickupBackpackPacket {
         return new PickupBackpackPacket(buf.readBlockPos(), buf.readEnum(BackpackTier.class));
     }
 
-    public static void handle(PickupBackpackPacket packet, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(PickupBackpackPacket packet, Supplier<CustomPayloadEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player == null) return;

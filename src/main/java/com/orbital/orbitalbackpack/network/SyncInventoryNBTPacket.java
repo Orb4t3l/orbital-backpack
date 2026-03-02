@@ -7,7 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.event.network.CustomPayloadEvent;
 
 import java.util.function.Supplier;
 
@@ -30,7 +30,7 @@ public class SyncInventoryNBTPacket {
         return new SyncInventoryNBTPacket(buf.readInt(), buf.readNbt());
     }
 
-    public static void handle(SyncInventoryNBTPacket packet, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(SyncInventoryNBTPacket packet, Supplier<CustomPayloadEvent.Context> ctx) {
         ctx.get().enqueueWork(() ->
                 DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
                     Player player = Minecraft.getInstance().player;

@@ -1,54 +1,43 @@
 package com.orbital.orbitalbackpack.network;
 
 import com.orbital.orbitalbackpack.client.menu.BackpackMenu;
-import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.compat.CuriosCompat;
 import com.orbital.orbitalbackpack.items.Backpack;
 import com.orbital.orbitalbackpack.registries.ModMenus;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.network.CustomPayloadEvent;
-import net.minecraftforge.network.NetworkHooks;
-
-import java.util.function.Supplier;
 
 public class OpenBackSlotPacket {
 
     public static void encode(OpenBackSlotPacket packet, FriendlyByteBuf buf) {}
-    public static OpenBackSlotPacket decode(FriendlyByteBuf buf) { return new OpenBackSlotPacket(); }
 
-    public static void handle(OpenBackSlotPacket packet, Supplier<CustomPayloadEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
-            if (player == null) return;
-            if (!CuriosCompat.isLoaded()) return;
+    public static OpenBackSlotPacket decode(FriendlyByteBuf buf) {
+        return new OpenBackSlotPacket();
+    }
 
-            ItemStack backpackStack = CuriosCompat.getBackStack(player);
-            if (backpackStack.isEmpty()) return;
-            if (!(backpackStack.getItem() instanceof Backpack backpack)) return;
+    public static void handle(OpenBackSlotPacket packet, CustomPayloadEvent.Context ctx) {
+        ServerPlayer player = ctx.getSender();
+        if (player == null) return;
+        if (!CuriosCompat.isLoaded()) return;
 
-            BackpackTier tier = backpack.getTier();
+        ItemStack stack = CuriosCompat.getBackStack(player);
+        if (stack.isEmpty() || !(stack.getItem() instanceof Backpack backpack)) return;
 
-            NetworkHooks.openScreen(
-                    player,
-                    new SimpleMenuProvider(
-                            (id, inv, p) -> new BackpackMenu(
-                                    ModMenus.MENUS.get(tier).get(),
-                                    id, inv, tier, backpackStack
-                            ),
-                            Component.translatable("item.orbitalbackpack."
-                                    + tier.name().toLowerCase() + "_backpack")
-                    ),
-                    buf -> {
-                        buf.writeBoolean(false); // not block
-                        buf.writeBoolean(true);  // is curio
-                    }
-            );
+        var tier = backpack.getTier();
+        var menuType = ModMenus.MENUS.get(tier).get();
+        ItemStack curioStack = stack;
+
+        player.openMenu(new SimpleMenuProvider(
+                (id, inv, p) -> new BackpackMenu(menuType, id, inv, tier, curioStack),
+                Component.empty()
+        ), buf -> {
+            buf.writeBoolean(false); // isBlock
+            buf.writeBoolean(true);  // isCurio
+            buf.writeBoolean(false);
         });
-        ctx.get().setPacketHandled(true);
     }
 }
