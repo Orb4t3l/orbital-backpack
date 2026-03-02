@@ -90,7 +90,9 @@ public class MagnetEventHandler {
                 int space = existing.getMaxStackSize() - existing.getCount();
                 if (space > 0) {
                     int toInsert = Math.min(space, stack.getCount());
-                    existing.grow(toInsert);
+                    ItemStack updated = existing.copy();
+                    updated.grow(toInsert);
+                    handler.setStackInSlot(i, updated); // write back the copy
                     stack.shrink(toInsert);
                     if (stack.isEmpty()) return true;
                 }

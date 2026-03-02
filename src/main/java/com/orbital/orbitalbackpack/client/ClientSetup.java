@@ -87,5 +87,5 @@ public final class ClientSetup {
 //    @SubscribeEvent
 //    public static void onRegisterLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
 //        event.registerLayerDefinition(BACKPACK_LAYER, BackpackModel::createBodyLayer);
-    }
+    //}
 }
