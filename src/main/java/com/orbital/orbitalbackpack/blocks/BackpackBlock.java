@@ -1,17 +1,23 @@
 package com.orbital.orbitalbackpack.blocks;
 
 import com.mojang.serialization.MapCodec;
+import com.orbital.orbitalbackpack.client.menu.BackpackMenu;
 import com.orbital.orbitalbackpack.common.BackpackTier;
+import com.orbital.orbitalbackpack.registries.ModBlockEntities;
 import com.orbital.orbitalbackpack.registries.ModItems;
+import com.orbital.orbitalbackpack.registries.ModMenus;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -20,21 +26,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.level.block.Blocks;
-import com.orbital.orbitalbackpack.registries.ModBlockEntities;
 
 import javax.annotation.Nullable;
 
 public class BackpackBlock extends BaseEntityBlock {
 
-    public static final MapCodec<BackpackBlock> CODEC = simpleCodec(BackpackBlock::new);
+    // simpleCodec only works when constructor takes just Properties.
+    // Since ours takes BackpackTier, use a per-instance unit codec instead.
+    private final MapCodec<BackpackBlock> instanceCodec = MapCodec.unit(() -> this);
 
     @Override
     public MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
+        return instanceCodec;
     }
 
     private static final VoxelShape SHAPE = box(4, 0, 4, 12, 12, 12);
@@ -65,7 +68,8 @@ public class BackpackBlock extends BaseEntityBlock {
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
+                                                                  BlockEntityType<T> type) {
         return createTickerHelper(type, ModBlockEntities.BACKPACK_BE.get(), BackpackBlockEntity::tick);
     }
 
@@ -76,19 +80,21 @@ public class BackpackBlock extends BaseEntityBlock {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof BackpackBlockEntity backpackBE) {
                 backpackBE.setOpen(true);
-                NetworkHooks.openScreen(
-                        (ServerPlayer) player,
+                ServerPlayer serverPlayer = (ServerPlayer) player;
+                var menuType = ModMenus.MENUS.get(tier).get();
+                BlockPos capturedPos = pos;
+
+                // NetworkHooks.openScreen is gone — use serverPlayer.openMenu directly
+                serverPlayer.openMenu(
                         new SimpleMenuProvider(
-                                (id, inv, p) -> {
-                                    var menuType = com.orbital.orbitalbackpack.registries.ModMenus.MENUS.get(tier).get();
-                                    return new com.orbital.orbitalbackpack.client.menu.BackpackMenu(
-                                            menuType, id, inv, pos, tier, backpackBE.getHandler());
-                                },
-                                Component.translatable("item.orbitalbackpack." + tier.name().toLowerCase() + "_backpack")
+                                (id, inv, p) -> new BackpackMenu(menuType, id, inv, capturedPos, tier,
+                                        backpackBE.getHandler()),
+                                Component.translatable("item.orbitalbackpack."
+                                        + tier.name().toLowerCase() + "_backpack")
                         ),
                         buf -> {
-                            buf.writeBoolean(true);
-                            buf.writeBlockPos(pos);
+                            buf.writeBoolean(true);  // isBlock
+                            buf.writeBlockPos(capturedPos);
                         }
                 );
             }

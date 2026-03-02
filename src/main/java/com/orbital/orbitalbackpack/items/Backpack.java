@@ -30,7 +30,6 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.theillusivec4.curios.api.CuriosCapability;
@@ -146,18 +145,20 @@ public class Backpack extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         if (!level.isClientSide) {
-            NetworkHooks.openScreen(
-                    (ServerPlayer) player,
+            ServerPlayer serverPlayer = (ServerPlayer) player;
+            var menuType = ModMenus.MENUS.get(tier).get();
+            boolean isMainHand = hand == InteractionHand.MAIN_HAND;
+
+            serverPlayer.openMenu(
                     new SimpleMenuProvider(
-                            (id, inv, p) -> new BackpackMenu(
-                                    ModMenus.MENUS.get(tier).get(), id, inv, hand, tier),
+                            (id, inv, p) -> new BackpackMenu(menuType, id, inv, hand, tier),
                             Component.translatable("item.orbitalbackpack."
                                     + tier.name().toLowerCase() + "_backpack")
                     ),
-                    buf -> {
+                    (net.minecraft.network.FriendlyByteBuf buf) -> {
                         buf.writeBoolean(false); // not block
                         buf.writeBoolean(false); // not curio
-                        buf.writeBoolean(hand == InteractionHand.MAIN_HAND);
+                        buf.writeBoolean(isMainHand);
                     }
             );
         }

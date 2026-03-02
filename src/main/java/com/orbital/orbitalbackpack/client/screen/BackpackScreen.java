@@ -187,15 +187,19 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 
     private void onDepositClicked() {
         boolean isBlock = this.menu.isBlockBased();
+        BlockPos pos = isBlock ? this.menu.getBlockPos() : null;
+        boolean isMainHand = this.menu.getHand() == InteractionHand.MAIN_HAND;
         ModNetwork.CHANNEL.send(
-                new DepositAllPacket(),
+                new DepositAllPacket(isBlock, pos, isMainHand),
                 PacketDistributor.SERVER.noArg());
     }
 
     private void onWithdrawClicked() {
         boolean isBlock = this.menu.isBlockBased();
+        BlockPos pos = isBlock ? this.menu.getBlockPos() : null;
+        boolean isMainHand = this.menu.getHand() == InteractionHand.MAIN_HAND;
         ModNetwork.CHANNEL.send(
-                new WithdrawAllPacket(),
+                new WithdrawAllPacket(isBlock, pos, isMainHand),
                 PacketDistributor.SERVER.noArg());
     }
 
