@@ -1,5 +1,6 @@
 package com.orbital.orbitalbackpack.blocks;
 
+import com.mojang.serialization.MapCodec;
 import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.registries.ModItems;
 import net.minecraft.core.BlockPos;
@@ -29,11 +30,18 @@ import javax.annotation.Nullable;
 
 public class BackpackBlock extends BaseEntityBlock {
 
+    public static final MapCodec<BackpackBlock> CODEC = simpleCodec(BackpackBlock::new);
+
+    @Override
+    public MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
     private static final VoxelShape SHAPE = box(4, 0, 4, 12, 12, 12);
     private final BackpackTier tier;
 
     public BackpackBlock(BackpackTier tier) {
-        super(Properties.copy(Blocks.OAK_PLANKS).strength(1.5f).noOcclusion());
+        super(Properties.ofFullCopy(Blocks.OAK_PLANKS).strength(1.5f).noOcclusion());
         this.tier = tier;
     }
 
