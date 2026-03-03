@@ -76,7 +76,6 @@ public class BackpackBlock extends BaseEntityBlock {
         return createTickerHelper(type, ModBlockEntities.BACKPACK_BE.get(), BackpackBlockEntity::tick);
     }
 
-    @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
                                  InteractionHand hand, BlockHitResult hit) {
         if (!level.isClientSide) {

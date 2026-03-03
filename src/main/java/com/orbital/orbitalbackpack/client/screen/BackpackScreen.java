@@ -4,6 +4,7 @@ import com.orbital.orbitalbackpack.client.BackpackOpenTracker;
 import com.orbital.orbitalbackpack.client.menu.BackpackMenu;
 import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.network.*;
+import com.orbital.orbitalbackpack.util.ItemData; // <- helper import
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
@@ -160,12 +161,13 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 
     private boolean isMagnetUnlocked() {
         ItemStack stack = getBackpackStack();
-        return !stack.isEmpty() && stack.hasTag() && stack.getTag().getBoolean("magnet_unlocked");
+        // ItemData.getBoolean returns false if no tag exists, so this is safe for empty stacks.
+        return ItemData.getBoolean(stack, "magnet_unlocked");
     }
 
     private boolean isMagnetActive() {
         ItemStack stack = getBackpackStack();
-        return !stack.isEmpty() && stack.hasTag() && stack.getTag().getBoolean("magnet");
+        return ItemData.getBoolean(stack, "magnet");
     }
 
     private void onPickupClicked() {

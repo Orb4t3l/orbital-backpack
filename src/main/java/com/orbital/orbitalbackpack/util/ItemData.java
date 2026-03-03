@@ -8,20 +8,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-/**
- * Small wrapper around the new Data Components / CustomData API so the rest of the mod
- * can still call simple methods like ItemData.getBoolean(stack, key) and ItemData.edit(...)
- *
- * Notes:
- * - Uses CustomData.update / CustomData.set under the hood (1.20.6+ / NeoForge).
- * - If your mapping names differ slightly (DataComponents vs DataComponentTypes, or package),
- *   I can adjust this quickly if you paste the compile errors.
- */
 public final class ItemData {
 
     private ItemData() {}
 
-    // Try to read the existing custom_data; returns null when absent.
     private static @Nullable CompoundTag readRaw(ItemStack stack) {
         final CompoundTag[] read = new CompoundTag[1];
         // Consumer will be called with the current tag if it exists.
@@ -39,10 +29,9 @@ public final class ItemData {
         return created;
     }
 
-    // Edit (read-modify-write) helper that ensures the stack's custom_data exists
     // and saves changes after editor runs.
     public static void edit(ItemStack stack, Consumer<CompoundTag> editor) {
-        // Use update which should apply the editor to the stack's component.
+        // Use update which should apply the editor to the stacks component.
         CustomData.update(DataComponents.CUSTOM_DATA, stack, editor);
     }
 
@@ -85,5 +74,13 @@ public final class ItemData {
 
     public static void remove(ItemStack stack, String key) {
         edit(stack, tag -> tag.remove(key));
+    }
+    public static @Nullable CompoundTag getRawTagCopy(ItemStack stack) {
+        CompoundTag t = readRaw(stack);
+        return t != null ? t.copy() : null;
+    }
+
+    public static void setRawTag(ItemStack stack, CompoundTag tag) {
+        CustomData.set(DataComponents.CUSTOM_DATA, stack, tag);
     }
 }

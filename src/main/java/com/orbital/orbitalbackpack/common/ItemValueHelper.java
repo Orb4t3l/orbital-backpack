@@ -84,10 +84,15 @@ public class ItemValueHelper {
         };
 
         if (stack.isEnchanted()) {
-            score += EnchantmentHelper.getEnchantments(stack).values()
-                    .stream()
-                    .mapToInt(Integer::intValue)
-                    .sum() * 15;
+            var enchants = stack.getOrDefault(net.minecraft.core.component.DataComponents.ENCHANTMENTS,
+                    net.minecraft.world.item.enchantment.ItemEnchantments.EMPTY);
+
+            int total = 0;
+            for (var entry : enchants.entrySet()) {
+                total += entry.getIntValue(); // level
+            }
+
+            score += total * 15;
         }
 
         if (stack.isDamageableItem()) {

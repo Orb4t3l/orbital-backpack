@@ -153,7 +153,10 @@ public class ItemSortHelper {
                 || id.contains("amethyst") || id.contains("quartz")) return 4;
         if (id.contains("_ore") || id.startsWith("raw_")) return 5;
         if (item instanceof BlockItem) return 6;
-        if (item.isEdible()) return 7;
+        var food = stack.get(net.minecraft.core.component.DataComponents.FOOD);
+        if (food != null) {
+            return 7;
+        }
 
         return 8;
     }
