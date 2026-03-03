@@ -2,6 +2,7 @@ package com.orbital.orbitalbackpack.network;
 
 import com.orbital.orbitalbackpack.blocks.BackpackBlockEntity;
 import com.orbital.orbitalbackpack.client.menu.BackpackMenu;
+import com.orbital.orbitalbackpack.util.ItemData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -98,7 +99,7 @@ public class WithdrawAllPacket {
             InteractionHand hand = packet.isMainHand ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
             ItemStack stack = player.getItemInHand(hand);
             if (!stack.isEmpty()) {
-                stack.getOrCreateTag().put("inventory", handler.serializeNBT());
+                ItemData.edit(stack, tag -> tag.put("inventory", handler.serializeNBT()));
             }
         }
 

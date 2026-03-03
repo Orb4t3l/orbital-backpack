@@ -77,4 +77,7 @@ public class ItemData {
         editor.accept(tag);
         save(stack, tag);
     }
+    public static void set(ItemStack stack, String key, CompoundTag value) {
+        edit(stack, tag -> tag.put(key, value));
+    }
 }

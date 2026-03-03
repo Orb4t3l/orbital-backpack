@@ -3,6 +3,7 @@ package com.orbital.orbitalbackpack.client.menu;
 import com.orbital.orbitalbackpack.blocks.BackpackBlockEntity;
 import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.registries.ModMenus;
+import com.orbital.orbitalbackpack.util.ItemData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.InteractionHand;
@@ -40,8 +41,9 @@ public class BackpackMenu extends AbstractContainerMenu {
         this.handler = new ItemStackHandler(tier.getSlots());
 
         ItemStack stack = player.getItemInHand(hand);
-        if (stack.hasTag() && stack.getTag().contains("inventory")) {
-            this.handler.deserializeNBT(stack.getTag().getCompound("inventory"));
+
+        if (ItemData.has(stack, "inventory")) {
+            this.handler.deserializeNBT(ItemData.getCompound(stack, "inventory"));
         }
 
         buildSlots(inv);
@@ -73,8 +75,8 @@ public class BackpackMenu extends AbstractContainerMenu {
         this.tier = tier;
         this.handler = new ItemStackHandler(tier.getSlots());
 
-        if (curioStack.hasTag() && curioStack.getTag().contains("inventory")) {
-            this.handler.deserializeNBT(curioStack.getTag().getCompound("inventory"));
+        if (ItemData.has(curioStack, "inventory")) {
+            this.handler.deserializeNBT(ItemData.getCompound(curioStack, "inventory"));
         }
 
         buildSlots(inv);
@@ -168,15 +170,14 @@ public class BackpackMenu extends AbstractContainerMenu {
                                     h.getStacksHandler("back").ifPresent(stacksHandler -> {
                                         ItemStack slotStack = stacksHandler.getStacks().getStackInSlot(0);
                                         if (!slotStack.isEmpty()) {
-                                            slotStack.getOrCreateTag().put("inventory", handler.serializeNBT());
-                                        }
+                                            ItemData.edit(slotStack, tag -> tag.put("inventory", handler.serializeNBT()));                                        }
                                     })
                             );
                 }
             } else {
                 ItemStack stack = player.getItemInHand(hand);
                 if (!stack.isEmpty()) {
-                    stack.getOrCreateTag().put("inventory", handler.serializeNBT());
+                    ItemData.edit(stack, tag -> tag.put("inventory", handler.serializeNBT()));
                 }
             }
         }

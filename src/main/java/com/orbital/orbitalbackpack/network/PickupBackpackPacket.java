@@ -3,6 +3,7 @@ package com.orbital.orbitalbackpack.network;
 import com.orbital.orbitalbackpack.blocks.BackpackBlockEntity;
 import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.registries.ModItems;
+import com.orbital.orbitalbackpack.util.ItemData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,7 +42,7 @@ public class PickupBackpackPacket {
             if (!(blockEntity instanceof BackpackBlockEntity backpackBE)) return;
 
             ItemStack backpackItem = new ItemStack(ModItems.BACKPACKS.get(packet.tier).get());
-            backpackItem.getOrCreateTag().put("inventory", backpackBE.getHandler().serializeNBT());
+            ItemData.edit(backpackItem, tag -> tag.put("inventory", backpackBE.getHandler().serializeNBT()));
 
             backpackBE.setClaimed();
             player.closeContainer();
