@@ -1,5 +1,6 @@
 package com.orbital.orbitalbackpack.client.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -13,8 +14,6 @@ public class TextureButton extends AbstractButton {
     private final int texV;
     private final int texWidth;
     private final int texHeight;
-    private final int textureFileWidth;
-    private final int textureFileHeight;
     private final OnPress onPress;
 
     public TextureButton(int x, int y, int width, int height,
@@ -27,8 +26,6 @@ public class TextureButton extends AbstractButton {
         this.texV = texV;
         this.texWidth = texWidth;
         this.texHeight = texHeight;
-        this.textureFileWidth = textureFileWidth;
-        this.textureFileHeight = textureFileHeight;
         this.onPress = onPress;
     }
 
@@ -39,9 +36,14 @@ public class TextureButton extends AbstractButton {
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderTexture(0, texture);
+
         int vOffset = this.isHoveredOrFocused() ? texV + texHeight : texV;
-        guiGraphics.blit(texture, getX(), getY(), texU, vOffset,
-                texWidth, texHeight, textureFileWidth, textureFileHeight);
+        // Same blit variant as renderBg background - reliable for direct PNG files
+        guiGraphics.blit(texture, getX(), getY(), texU, vOffset, texWidth, texHeight);
     }
 
     @Override
