@@ -6,6 +6,7 @@ import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.registries.ModBlockEntities;
 import com.orbital.orbitalbackpack.registries.ModItems;
 import com.orbital.orbitalbackpack.registries.ModMenus;
+import com.orbital.orbitalbackpack.util.ItemData; // <- add this
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,7 +36,9 @@ public class BackpackBlock extends BaseEntityBlock {
     // Since ours takes BackpackTier, use a per-instance unit codec instead.
     private final MapCodec<BackpackBlock> instanceCodec = MapCodec.unit(() -> this);
 
-    @Override
+    // NOTE: Some mappings change the exact signature for codec() in BaseEntityBlock.
+    // If your compiler complains that this method does not override anything, remove @Override
+    // or adapt the signature to whatever your BaseEntityBlock expects.
     public MapCodec<? extends BaseEntityBlock> codec() {
         return instanceCodec;
     }
@@ -84,7 +87,6 @@ public class BackpackBlock extends BaseEntityBlock {
                 var menuType = ModMenus.MENUS.get(tier).get();
                 BlockPos capturedPos = pos;
 
-                // NetworkHooks.openScreen is gone — use serverPlayer.openMenu directly
                 serverPlayer.openMenu(
                         new SimpleMenuProvider(
                                 (id, inv, p) -> new BackpackMenu(menuType, id, inv, capturedPos, tier,
@@ -109,7 +111,8 @@ public class BackpackBlock extends BaseEntityBlock {
             if (be instanceof BackpackBlockEntity backpackBE && !level.isClientSide) {
                 if (!backpackBE.isClaimed()) {
                     ItemStack drop = new ItemStack(ModItems.BACKPACKS.get(tier).get());
-                    drop.getOrCreateTag().put("inventory", backpackBE.getHandler().serializeNBT());
+                    // <-- modern replacement for getOrCreateTag()
+                    ItemData.set(drop, "inventory", backpackBE.getHandler().serializeNBT());
                     net.minecraft.world.Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), drop);
                 }
             }
