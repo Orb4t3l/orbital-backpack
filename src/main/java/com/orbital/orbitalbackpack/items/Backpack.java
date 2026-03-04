@@ -24,13 +24,13 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.items.ItemStackHandler;
-import top.theillusivec4.curios.api.CurioItem;
+import top.theillusivec4.curios.api.SlotContext;
+import top.theillusivec4.curios.api.type.capability.ICurio;
+import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import java.util.Optional;
 
-// @CurioItem replaces ICurioItem in 1.20.6+ Curios — slot restriction is set in curios data files
-@CurioItem
-public class Backpack extends Item {
+public class Backpack extends Item implements ICurioItem {
 
     private final BackpackTier tier;
 
@@ -39,9 +39,7 @@ public class Backpack extends Item {
         this.tier = tier;
     }
 
-    public BackpackTier getTier() {
-        return tier;
-    }
+    public BackpackTier getTier() { return tier; }
 
     @Override
     public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
@@ -91,12 +89,10 @@ public class Backpack extends Item {
             ServerPlayer serverPlayer = (ServerPlayer) player;
             var menuType = ModMenus.MENUS.get(tier).get();
             boolean isMainHand = hand == InteractionHand.MAIN_HAND;
-
             serverPlayer.openMenu(
                     new SimpleMenuProvider(
                             (id, inv, p) -> new BackpackMenu(menuType, id, inv, hand, tier),
-                            Component.translatable("item.orbitalbackpack."
-                                    + tier.name().toLowerCase() + "_backpack")
+                            Component.translatable("item.orbitalbackpack." + tier.name().toLowerCase() + "_backpack")
                     ),
                     (net.minecraft.network.FriendlyByteBuf buf) -> {
                         buf.writeBoolean(false);
@@ -106,5 +102,21 @@ public class Backpack extends Item {
             );
         }
         return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide());
+    }
+
+    // ICurioItem — only equippable in back slot
+    @Override
+    public boolean canEquip(SlotContext slotContext, ItemStack stack) {
+        return slotContext.identifier().equals("back");
+    }
+
+    @Override
+    public boolean canUnequip(SlotContext slotContext, ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public ICurio.SoundInfo getEquipSound(SlotContext slotContext, ItemStack stack) {
+        return new ICurio.SoundInfo(net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_LEATHER.value(), 1.0f, 1.0f);
     }
 }

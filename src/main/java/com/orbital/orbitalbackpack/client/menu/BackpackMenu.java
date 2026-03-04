@@ -90,7 +90,8 @@ public class BackpackMenu extends AbstractContainerMenu {
         if (isCurio && ModList.get().isLoaded("curios")) {
             ItemStack curioStack = ItemStack.EMPTY;
             try {
-                curioStack = CuriosApi.getPlayerCurios(inv.player)
+                curioStack = CuriosApi.getCuriosHelper()
+                        .getCuriosHandler(inv.player)
                         .map(h -> h.getStacksHandler("back")
                                 .map(s -> s.getStacks().getStackInSlot(0))
                                 .orElse(ItemStack.EMPTY))
@@ -144,8 +145,9 @@ public class BackpackMenu extends AbstractContainerMenu {
         } else if (isCurioSlot) {
             if (ModList.get().isLoaded("curios")) {
                 try {
-                    CuriosApi.getPlayerCurios(player).ifPresent(h ->
-                            h.getStacksHandler("back").ifPresent(stacks -> {
+                    CuriosApi.getCuriosHelper()
+                            .getCuriosHandler(player)
+                            .ifPresent(h -> h.getStacksHandler("back").ifPresent(stacks -> {
                                 ItemStack slotStack = stacks.getStacks().getStackInSlot(0);
                                 if (!slotStack.isEmpty()) {
                                     ItemData.edit(slotStack, tag -> tag.put("inventory", handler.serializeNBT(null)));
