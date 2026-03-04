@@ -56,9 +56,14 @@ public class BackpackSmithingRecipe implements SmithingRecipe {
 
     public static class Serializer implements RecipeSerializer<BackpackSmithingRecipe> {
 
-        public static final MapCodec<BackpackSmithingRecipe> CODEC = MapCodec.unit(BackpackSmithingRecipe::new);
+        public static final MapCodec<BackpackSmithingRecipe> CODEC =
+                MapCodec.unit(BackpackSmithingRecipe::new);
+
         public static final StreamCodec<RegistryFriendlyByteBuf, BackpackSmithingRecipe> STREAM_CODEC =
-                StreamCodec.unit(new BackpackSmithingRecipe());
+                StreamCodec.of(
+                        (buf, recipe) -> {}, // nothing to write
+                        buf -> new BackpackSmithingRecipe()
+                );
 
         @Override
         public MapCodec<BackpackSmithingRecipe> codec() { return CODEC; }
@@ -66,4 +71,5 @@ public class BackpackSmithingRecipe implements SmithingRecipe {
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, BackpackSmithingRecipe> streamCodec() { return STREAM_CODEC; }
     }
+
 }

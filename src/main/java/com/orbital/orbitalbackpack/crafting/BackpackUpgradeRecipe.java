@@ -66,17 +66,18 @@ public class BackpackUpgradeRecipe extends CustomRecipe {
     public static class Serializer implements RecipeSerializer<BackpackUpgradeRecipe> {
 
         public static final MapCodec<BackpackUpgradeRecipe> CODEC =
-                MapCodec.unit(new BackpackUpgradeRecipe(CraftingBookCategory.MISC));
+                MapCodec.unit(() -> new BackpackUpgradeRecipe(CraftingBookCategory.MISC));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, BackpackUpgradeRecipe> STREAM_CODEC =
-                StreamCodec.unit(new BackpackUpgradeRecipe(CraftingBookCategory.MISC));
+                StreamCodec.of(
+                        (buf, recipe) -> {}, // nothing to write
+                        buf -> new BackpackUpgradeRecipe(CraftingBookCategory.MISC)
+                );
 
         @Override
         public MapCodec<BackpackUpgradeRecipe> codec() { return CODEC; }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, BackpackUpgradeRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
+        public StreamCodec<RegistryFriendlyByteBuf, BackpackUpgradeRecipe> streamCodec() { return STREAM_CODEC; }
     }
 }
