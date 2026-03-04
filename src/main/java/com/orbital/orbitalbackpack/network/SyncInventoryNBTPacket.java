@@ -39,7 +39,8 @@ public class SyncInventoryNBTPacket {
             } else {
                 ItemStack stack = player.getInventory().getItem(packet.slotIndex);
                 if (!stack.isEmpty()) {
-                    ItemData.edit(stack, tag -> tag.put("inventory", packet.inventoryNBT));                }
+                    ItemData.edit(stack, tag -> tag.put("inventory", packet.inventoryNBT));
+                }
             }
         });
     }

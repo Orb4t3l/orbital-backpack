@@ -17,7 +17,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.items.ItemStackHandler;
 import top.theillusivec4.curios.api.CuriosApi;
-import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 
 public class BackpackMenu extends AbstractContainerMenu {
 
@@ -29,7 +28,6 @@ public class BackpackMenu extends AbstractContainerMenu {
     private final boolean isBlockBased;
     private final boolean isCurioSlot;
 
-    // Hand-held constructor
     public BackpackMenu(MenuType<?> menuType, int id, Inventory inv, InteractionHand hand, BackpackTier tier) {
         super(menuType, id);
         this.hand = hand;
@@ -41,15 +39,12 @@ public class BackpackMenu extends AbstractContainerMenu {
         this.handler = new ItemStackHandler(tier.getSlots());
 
         ItemStack stack = player.getItemInHand(hand);
-
         if (ItemData.has(stack, "inventory")) {
-            this.handler.deserializeNBT(ItemData.getCompound(stack, "inventory"));
+            this.handler.deserializeNBT(null, ItemData.getCompound(stack, "inventory"));
         }
-
         buildSlots(inv);
     }
 
-    // Block-based constructor
     public BackpackMenu(MenuType<?> menuType, int id, Inventory inv, BlockPos blockPos,
                         BackpackTier tier, ItemStackHandler existingHandler) {
         super(menuType, id);
@@ -60,11 +55,9 @@ public class BackpackMenu extends AbstractContainerMenu {
         this.player = inv.player;
         this.tier = tier;
         this.handler = existingHandler;
-
         buildSlots(inv);
     }
 
-    // Curio slot constructor
     public BackpackMenu(MenuType<?> menuType, int id, Inventory inv, BackpackTier tier, ItemStack curioStack) {
         super(menuType, id);
         this.hand = null;
@@ -76,9 +69,8 @@ public class BackpackMenu extends AbstractContainerMenu {
         this.handler = new ItemStackHandler(tier.getSlots());
 
         if (ItemData.has(curioStack, "inventory")) {
-            this.handler.deserializeNBT(ItemData.getCompound(curioStack, "inventory"));
+            this.handler.deserializeNBT(null, ItemData.getCompound(curioStack, "inventory"));
         }
-
         buildSlots(inv);
     }
 
@@ -95,18 +87,15 @@ public class BackpackMenu extends AbstractContainerMenu {
         }
 
         boolean isCurio = buf.readBoolean();
-        if (isCurio) {
-            // Read back stack from curios to populate handler
+        if (isCurio && ModList.get().isLoaded("curios")) {
             ItemStack curioStack = ItemStack.EMPTY;
-            if (ModList.get().isLoaded("curios")) {
-                curioStack = CuriosApi.getCuriosHelper()
-                        .getCuriosHandler(inv.player)
-                        .map((ICuriosItemHandler h) ->
-                                h.getStacksHandler("back")
-                                        .map(s -> s.getStacks().getStackInSlot(0))
-                                        .orElse(ItemStack.EMPTY))
+            try {
+                curioStack = CuriosApi.getPlayerCurios(inv.player)
+                        .map(h -> h.getStacksHandler("back")
+                                .map(s -> s.getStacks().getStackInSlot(0))
+                                .orElse(ItemStack.EMPTY))
                         .orElse(ItemStack.EMPTY);
-            }
+            } catch (Exception ignored) {}
             return new BackpackMenu(menuType, id, inv, tier, curioStack);
         }
 
@@ -115,22 +104,19 @@ public class BackpackMenu extends AbstractContainerMenu {
     }
 
     private void buildSlots(Inventory inv) {
-        int startX = 8;
-        int startY = 18;
+        int startX = 8, startY = 18;
         for (int row = 0; row < tier.getRows(); row++) {
             for (int col = 0; col < 9; col++) {
                 this.addSlot(new RestrictedBackpackSlot(handler, col + row * 9,
                         startX + col * 18, startY + row * 18));
             }
         }
-
         int playerStartY = startY + tier.getRows() * 18 + 14;
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 this.addSlot(new Slot(inv, col + row * 9 + 9, 8 + col * 18, playerStartY + row * 18));
             }
         }
-
         int hotbarY = playerStartY + 58;
         for (int col = 0; col < 9; col++) {
             this.addSlot(new Slot(inv, col, 8 + col * 18, hotbarY));
@@ -144,41 +130,33 @@ public class BackpackMenu extends AbstractContainerMenu {
     public InteractionHand getHand() { return hand; }
     public ItemStackHandler getHandler() { return handler; }
 
-    public void insertFromMagnet(ItemStackHandler source) {
-        // Copy all slot contents from the magnet's handler into this menu's handler
-        for (int i = 0; i < handler.getSlots() && i < source.getSlots(); i++) {
-            handler.setStackInSlot(i, source.getStackInSlot(i).copy());
-        }
-        broadcastChanges();
-    }
-
     @Override
     public void removed(Player player) {
         super.removed(player);
-        if (!player.level().isClientSide) {
-            if (isBlockBased) {
-                BlockEntity be = player.level().getBlockEntity(blockPos);
-                if (be instanceof BackpackBlockEntity backpackBE) {
-                    backpackBE.setOpen(false);
-                    backpackBE.setChanged();
-                }
-            } else if (isCurioSlot) {
-                if (ModList.get().isLoaded("curios")) {
-                    CuriosApi.getCuriosHelper()
-                            .getCuriosHandler(player)
-                            .ifPresent((ICuriosItemHandler h) ->
-                                    h.getStacksHandler("back").ifPresent(stacksHandler -> {
-                                        ItemStack slotStack = stacksHandler.getStacks().getStackInSlot(0);
-                                        if (!slotStack.isEmpty()) {
-                                            ItemData.edit(slotStack, tag -> tag.put("inventory", handler.serializeNBT()));                                        }
-                                    })
-                            );
-                }
-            } else {
-                ItemStack stack = player.getItemInHand(hand);
-                if (!stack.isEmpty()) {
-                    ItemData.edit(stack, tag -> tag.put("inventory", handler.serializeNBT()));
-                }
+        if (player.level().isClientSide) return;
+
+        if (isBlockBased) {
+            BlockEntity be = player.level().getBlockEntity(blockPos);
+            if (be instanceof BackpackBlockEntity backpackBE) {
+                backpackBE.setOpen(false);
+                backpackBE.setChanged();
+            }
+        } else if (isCurioSlot) {
+            if (ModList.get().isLoaded("curios")) {
+                try {
+                    CuriosApi.getPlayerCurios(player).ifPresent(h ->
+                            h.getStacksHandler("back").ifPresent(stacks -> {
+                                ItemStack slotStack = stacks.getStacks().getStackInSlot(0);
+                                if (!slotStack.isEmpty()) {
+                                    ItemData.edit(slotStack, tag -> tag.put("inventory", handler.serializeNBT(null)));
+                                }
+                            }));
+                } catch (Exception ignored) {}
+            }
+        } else {
+            ItemStack stack = player.getItemInHand(hand);
+            if (!stack.isEmpty()) {
+                ItemData.edit(stack, tag -> tag.put("inventory", handler.serializeNBT(null)));
             }
         }
     }
@@ -190,29 +168,20 @@ public class BackpackMenu extends AbstractContainerMenu {
     public ItemStack quickMoveStack(Player player, int index) {
         ItemStack stack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
-
         if (slot != null && slot.hasItem()) {
             ItemStack stackInSlot = slot.getItem();
             stack = stackInSlot.copy();
-
             int containerSlots = tier.getSlots();
             if (index < containerSlots) {
-                if (!this.moveItemStackTo(stackInSlot, containerSlots, this.slots.size(), true)) {
+                if (!this.moveItemStackTo(stackInSlot, containerSlots, this.slots.size(), true))
                     return ItemStack.EMPTY;
-                }
             } else {
-                if (!this.moveItemStackTo(stackInSlot, 0, containerSlots, false)) {
+                if (!this.moveItemStackTo(stackInSlot, 0, containerSlots, false))
                     return ItemStack.EMPTY;
-                }
             }
-
-            if (stackInSlot.isEmpty()) {
-                slot.set(ItemStack.EMPTY);
-            } else {
-                slot.setChanged();
-            }
+            if (stackInSlot.isEmpty()) slot.set(ItemStack.EMPTY);
+            else slot.setChanged();
         }
-
         return stack;
     }
 }
