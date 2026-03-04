@@ -40,9 +40,10 @@ public class PickupBackpackPacket {
             var blockEntity = level.getBlockEntity(packet.pos);
 
             if (!(blockEntity instanceof BackpackBlockEntity backpackBE)) return;
-
+            
             ItemStack backpackItem = new ItemStack(ModItems.BACKPACKS.get(packet.tier).get());
-            ItemData.edit(backpackItem, tag -> tag.put("inventory", backpackBE.getHandler().serializeNBT()));
+            ItemData.edit(backpackItem, tag -> tag.put("inventory",
+                    backpackBE.getHandler().serializeNBT(player.registryAccess())));
 
             backpackBE.setClaimed();
             player.closeContainer();

@@ -69,7 +69,7 @@ public class BackpackMenu extends AbstractContainerMenu {
         this.handler = new ItemStackHandler(tier.getSlots());
 
         if (ItemData.has(curioStack, "inventory")) {
-            this.handler.deserializeNBT(null, ItemData.getCompound(curioStack, "inventory"));
+            this.handler.deserializeNBT(inv.player.registryAccess(), ItemData.getCompound(curioStack, "inventory"));
         }
         buildSlots(inv);
     }
@@ -150,7 +150,7 @@ public class BackpackMenu extends AbstractContainerMenu {
                             .ifPresent(h -> h.getStacksHandler("back").ifPresent(stacks -> {
                                 ItemStack slotStack = stacks.getStacks().getStackInSlot(0);
                                 if (!slotStack.isEmpty()) {
-                                    ItemData.edit(slotStack, tag -> tag.put("inventory", handler.serializeNBT(null)));
+                                    ItemData.edit(slotStack, tag -> tag.put("inventory", handler.serializeNBT(player.registryAccess())));
                                 }
                             }));
                 } catch (Exception ignored) {}
@@ -158,7 +158,7 @@ public class BackpackMenu extends AbstractContainerMenu {
         } else {
             ItemStack stack = player.getItemInHand(hand);
             if (!stack.isEmpty()) {
-                ItemData.edit(stack, tag -> tag.put("inventory", handler.serializeNBT(null)));
+                ItemData.edit(stack, tag -> tag.put("inventory", handler.serializeNBT(player.registryAccess())));
             }
         }
     }

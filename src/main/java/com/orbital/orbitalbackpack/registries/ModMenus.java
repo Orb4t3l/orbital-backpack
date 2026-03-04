@@ -24,6 +24,7 @@ public class ModMenus {
             String name = tier.name().toLowerCase() + "_backpack_menu";
             MENUS.put(tier, MENU_TYPES.register(name,
                     () -> IForgeMenuType.create((id, inv, buf) -> BackpackMenu.create(tier, id, inv, buf))));
+
         }
     }
 }

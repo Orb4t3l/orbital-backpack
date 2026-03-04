@@ -45,7 +45,11 @@ public class Backpack extends Item implements ICurioItem {
     public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
         ItemStackHandler handler = new ItemStackHandler(tier.getSlots());
         if (ItemData.has(stack, "inventory")) {
-            handler.deserializeNBT(null, ItemData.getCompound(stack, "inventory"));
+            // Client side has no easy registry access, use Minecraft.getInstance().level
+            var level = net.minecraft.client.Minecraft.getInstance().level;
+            if (level != null) {
+                handler.deserializeNBT(level.registryAccess(), ItemData.getCompound(stack, "inventory"));
+            }
         }
         int usedSlots = 0;
         for (int i = 0; i < handler.getSlots(); i++) {
@@ -71,10 +75,11 @@ public class Backpack extends Item implements ICurioItem {
                     if (be instanceof BackpackBlockEntity backpackBE) {
                         ItemStack held = context.getItemInHand();
                         if (ItemData.has(held, "inventory")) {
-                            backpackBE.getHandler().deserializeNBT(null, ItemData.getCompound(held, "inventory"));
+                            backpackBE.getHandler().deserializeNBT(level.registryAccess(), ItemData.getCompound(held, "inventory"));
                         }
                         backpackBE.setChanged();
                     }
+
                     if (!player.getAbilities().instabuild) context.getItemInHand().shrink(1);
                 }
                 return InteractionResult.sidedSuccess(level.isClientSide);

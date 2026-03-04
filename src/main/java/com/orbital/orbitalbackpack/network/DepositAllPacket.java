@@ -102,7 +102,7 @@ public class DepositAllPacket {
             InteractionHand hand = packet.isMainHand ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
             ItemStack stack = player.getItemInHand(hand);
             if (!stack.isEmpty()) {
-                ItemData.set(stack, "inventory", handler.serializeNBT(null));
+                ItemData.edit(stack, tag -> tag.put("inventory", handler.serializeNBT(player.registryAccess())));
             }
         }
 

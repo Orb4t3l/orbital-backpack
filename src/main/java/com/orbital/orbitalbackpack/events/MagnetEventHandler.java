@@ -68,7 +68,7 @@ public class MagnetEventHandler {
             handler = new ItemStackHandler(backpack.getTier().getSlots());
             if (ItemData.has(backpackStack, "inventory")) {
                 try {
-                    handler.deserializeNBT(null, ItemData.getCompound(backpackStack, "inventory"));
+                    handler.deserializeNBT(player.registryAccess(), ItemData.getCompound(backpackStack, "inventory"));
                 } catch (Exception e) {
                     OrbitalBackpack.LOGGER.error("Magnet: failed to read backpack inventory", e);
                     return;
@@ -103,7 +103,7 @@ public class MagnetEventHandler {
 
         if (!changed) return;
 
-        CompoundTag serialized = handler.serializeNBT(null);
+        CompoundTag serialized = handler.serializeNBT(player.registryAccess());
 
         if (openMenu != null) {
             // Menu is open — update item stack and broadcast slot changes
