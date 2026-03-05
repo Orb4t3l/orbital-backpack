@@ -40,7 +40,7 @@ public class BackpackMenu extends AbstractContainerMenu {
 
         ItemStack stack = player.getItemInHand(hand);
         if (ItemData.has(stack, "inventory")) {
-            this.handler.deserializeNBT(null, ItemData.getCompound(stack, "inventory"));
+            this.handler.deserializeNBT(inv.player.registryAccess(), ItemData.getCompound(stack, "inventory"));
         }
         buildSlots(inv);
     }
