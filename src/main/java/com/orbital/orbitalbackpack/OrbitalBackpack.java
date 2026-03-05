@@ -1,17 +1,23 @@
 package com.orbital.orbitalbackpack;
 
 import com.mojang.logging.LogUtils;
+import com.orbital.orbitalbackpack.compat.CuriosCompat;
 import com.orbital.orbitalbackpack.network.ModNetwork;
 import com.orbital.orbitalbackpack.registries.*;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Mod(OrbitalBackpack.MODID)
 public class OrbitalBackpack {
@@ -36,7 +42,16 @@ public class OrbitalBackpack {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        ModNetwork.register();
+        event.enqueueWork(() -> {
+            ModNetwork.register();
+            if (ModList.get().isLoaded("curios")) {
+                List<Item> backpacks = new ArrayList<>(ModItems.BACKPACKS.values()
+                        .stream()
+                        .map(ro -> ro.get())
+                        .toList());
+                CuriosCompat.registerCurioItems(backpacks);
+            }
+        });
     }
 
     @SubscribeEvent

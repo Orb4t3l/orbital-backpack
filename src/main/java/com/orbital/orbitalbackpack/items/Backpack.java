@@ -30,7 +30,7 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import java.util.Optional;
 
-public class Backpack extends Item implements ICurioItem {
+public class Backpack extends Item {
 
     private final BackpackTier tier;
 
@@ -45,7 +45,6 @@ public class Backpack extends Item implements ICurioItem {
     public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
         ItemStackHandler handler = new ItemStackHandler(tier.getSlots());
         if (ItemData.has(stack, "inventory")) {
-            // Client side has no easy registry access, use Minecraft.getInstance().level
             var level = net.minecraft.client.Minecraft.getInstance().level;
             if (level != null) {
                 handler.deserializeNBT(level.registryAccess(), ItemData.getCompound(stack, "inventory"));
@@ -75,11 +74,12 @@ public class Backpack extends Item implements ICurioItem {
                     if (be instanceof BackpackBlockEntity backpackBE) {
                         ItemStack held = context.getItemInHand();
                         if (ItemData.has(held, "inventory")) {
-                            backpackBE.getHandler().deserializeNBT(level.registryAccess(), ItemData.getCompound(held, "inventory"));
+                            backpackBE.getHandler().deserializeNBT(
+                                    level.registryAccess(),
+                                    ItemData.getCompound(held, "inventory"));
                         }
                         backpackBE.setChanged();
                     }
-
                     if (!player.getAbilities().instabuild) context.getItemInHand().shrink(1);
                 }
                 return InteractionResult.sidedSuccess(level.isClientSide);
@@ -92,12 +92,13 @@ public class Backpack extends Item implements ICurioItem {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         if (!level.isClientSide) {
             ServerPlayer serverPlayer = (ServerPlayer) player;
-            var menuType = ModMenus.MENUS.get(tier).get();
             boolean isMainHand = hand == InteractionHand.MAIN_HAND;
             serverPlayer.openMenu(
                     new SimpleMenuProvider(
-                            (id, inv, p) -> new BackpackMenu(menuType, id, inv, hand, tier),
-                            Component.translatable("item.orbitalbackpack." + tier.name().toLowerCase() + "_backpack")
+                            (id, inv, p) -> new BackpackMenu(
+                                    ModMenus.MENUS.get(tier).get(), id, inv, hand, tier),
+                            Component.translatable("item.orbitalbackpack."
+                                    + tier.name().toLowerCase() + "_backpack")
                     ),
                     (net.minecraft.network.FriendlyByteBuf buf) -> {
                         buf.writeBoolean(false);
@@ -107,21 +108,5 @@ public class Backpack extends Item implements ICurioItem {
             );
         }
         return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide());
-    }
-
-    // ICurioItem — only equippable in back slot
-    @Override
-    public boolean canEquip(SlotContext slotContext, ItemStack stack) {
-        return slotContext.identifier().equals("back");
-    }
-
-    @Override
-    public boolean canUnequip(SlotContext slotContext, ItemStack stack) {
-        return true;
-    }
-
-    @Override
-    public ICurio.SoundInfo getEquipSound(SlotContext slotContext, ItemStack stack) {
-        return new ICurio.SoundInfo(net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_LEATHER.value(), 1.0f, 1.0f);
     }
 }
