@@ -6,7 +6,7 @@ import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.registries.ModBlockEntities;
 import com.orbital.orbitalbackpack.registries.ModItems;
 import com.orbital.orbitalbackpack.registries.ModMenus;
-import com.orbital.orbitalbackpack.util.ItemData; // <- add this
+import com.orbital.orbitalbackpack.util.ItemData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,26 +24,26 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 
 public class BackpackBlock extends BaseEntityBlock {
 
-    // simpleCodec only works when constructor takes just Properties.
-    // Since ours takes BackpackTier, use a per-instance unit codec instead.
     private final MapCodec<BackpackBlock> instanceCodec = MapCodec.unit(() -> this);
 
-    // NOTE: Some mappings change the exact signature for codec() in BaseEntityBlock.
-    // If your compiler complains that this method does not override anything, remove @Override
-    // or adapt the signature to whatever your BaseEntityBlock expects.
+    @Override
     public MapCodec<? extends BaseEntityBlock> codec() {
         return instanceCodec;
     }
 
-    private static final VoxelShape SHAPE = box(4, 0, 4, 12, 12, 12);
+    // Use Shapes.create(AABB) to avoid the broken Block.box() reobf mapping
+    private static final VoxelShape SHAPE = Shapes.create(new AABB(4/16.0, 0/16.0, 4/16.0, 12/16.0, 12/16.0, 12/16.0));
+
     private final BackpackTier tier;
 
     public BackpackBlock(BackpackTier tier) {
@@ -76,6 +76,7 @@ public class BackpackBlock extends BaseEntityBlock {
         return createTickerHelper(type, ModBlockEntities.BACKPACK_BE.get(), BackpackBlockEntity::tick);
     }
 
+    @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
                                  InteractionHand hand, BlockHitResult hit) {
         if (!level.isClientSide) {
@@ -110,8 +111,7 @@ public class BackpackBlock extends BaseEntityBlock {
             if (be instanceof BackpackBlockEntity backpackBE && !level.isClientSide) {
                 if (!backpackBE.isClaimed()) {
                     ItemStack drop = new ItemStack(ModItems.BACKPACKS.get(tier).get());
-                    // <-- modern replacement for getOrCreateTag()
-                    ItemData.set(drop, "inventory", backpackBE.getHandler().serializeNBT());
+                    ItemData.set(drop, "inventory", backpackBE.getHandler().serializeNBT(level.registryAccess()));
                     net.minecraft.world.Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), drop);
                 }
             }

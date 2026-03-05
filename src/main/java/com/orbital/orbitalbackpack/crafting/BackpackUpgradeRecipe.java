@@ -69,10 +69,14 @@ public class BackpackUpgradeRecipe extends CustomRecipe {
                 MapCodec.unit(() -> new BackpackUpgradeRecipe(CraftingBookCategory.MISC));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, BackpackUpgradeRecipe> STREAM_CODEC =
-                StreamCodec.of(
-                        (buf, recipe) -> {}, // nothing to write
-                        buf -> new BackpackUpgradeRecipe(CraftingBookCategory.MISC)
-                );
+                new StreamCodec<>() {
+                    @Override
+                    public BackpackUpgradeRecipe decode(RegistryFriendlyByteBuf buf) {
+                        return new BackpackUpgradeRecipe(CraftingBookCategory.MISC);
+                    }
+                    @Override
+                    public void encode(RegistryFriendlyByteBuf buf, BackpackUpgradeRecipe value) {}
+                };
 
         @Override
         public MapCodec<BackpackUpgradeRecipe> codec() { return CODEC; }

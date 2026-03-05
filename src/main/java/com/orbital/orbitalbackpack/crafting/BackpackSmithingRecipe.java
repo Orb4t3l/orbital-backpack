@@ -60,10 +60,14 @@ public class BackpackSmithingRecipe implements SmithingRecipe {
                 MapCodec.unit(BackpackSmithingRecipe::new);
 
         public static final StreamCodec<RegistryFriendlyByteBuf, BackpackSmithingRecipe> STREAM_CODEC =
-                StreamCodec.of(
-                        (buf, recipe) -> {}, // nothing to write
-                        buf -> new BackpackSmithingRecipe()
-                );
+                new StreamCodec<>() {
+                    @Override
+                    public BackpackSmithingRecipe decode(RegistryFriendlyByteBuf buf) {
+                        return new BackpackSmithingRecipe();
+                    }
+                    @Override
+                    public void encode(RegistryFriendlyByteBuf buf, BackpackSmithingRecipe value) {}
+                };
 
         @Override
         public MapCodec<BackpackSmithingRecipe> codec() { return CODEC; }
