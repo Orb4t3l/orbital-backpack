@@ -19,8 +19,8 @@ public class OpenBackSlotPacket {
         return new OpenBackSlotPacket();
     }
 
-    public static void handle(OpenBackSlotPacket packet, CustomPayloadEvent.Context ctx) {
-        ServerPlayer player = ctx.getSender();
+    public static void handle(OpenBackSlotPacket packet, IPayloadContext ctx) {
+        ServerPlayer player = ctx.player();
         if (player == null) return;
         if (!CuriosCompat.isLoaded()) return;
 

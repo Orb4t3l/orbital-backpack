@@ -1,45 +1,21 @@
 package com.orbital.orbitalbackpack.network;
 
 import com.orbital.orbitalbackpack.OrbitalBackpack;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.network.ChannelBuilder;
-import net.neoforged.neoforge.network.SimpleChannel;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.event.RegisterPayloadsEvent;
 
+@EventBusSubscriber(modid = OrbitalBackpack.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class ModNetwork {
-
-    public static SimpleChannel CHANNEL;
-
-    public static void register() {
-        CHANNEL = ChannelBuilder
-                .named(ResourceLocation.fromNamespaceAndPath(OrbitalBackpack.MODID, "main"))
-                .simpleChannel();
-
-        CHANNEL.messageBuilder(OpenBackpackPacket.class, 0)
-                .encoder(OpenBackpackPacket::encode).decoder(OpenBackpackPacket::decode)
-                .consumerMainThread(OpenBackpackPacket::handle).add();
-
-        CHANNEL.messageBuilder(SortBackpackPacket.class, 1)
-                .encoder(SortBackpackPacket::encode).decoder(SortBackpackPacket::decode)
-                .consumerMainThread(SortBackpackPacket::handle).add();
-
-        CHANNEL.messageBuilder(DepositAllPacket.class, 2)
-                .encoder(DepositAllPacket::encode).decoder(DepositAllPacket::decode)
-                .consumerMainThread(DepositAllPacket::handle).add();
-
-        CHANNEL.messageBuilder(WithdrawAllPacket.class, 3)
-                .encoder(WithdrawAllPacket::encode).decoder(WithdrawAllPacket::decode)
-                .consumerMainThread(WithdrawAllPacket::handle).add();
-
-        CHANNEL.messageBuilder(MagnetTogglePacket.class, 4)
-                .encoder(MagnetTogglePacket::encode).decoder(MagnetTogglePacket::decode)
-                .consumerMainThread(MagnetTogglePacket::handle).add();
-
-//        CHANNEL.messageBuilder(OpenBackSlotPacket.class, 5)
-//                .encoder(OpenBackSlotPacket::encode).decoder(OpenBackSlotPacket::decode)
-//                .consumerMainThread(OpenBackSlotPacket::handle).add();
-
-        CHANNEL.messageBuilder(SyncInventoryNBTPacket.class, 6)
-                .encoder(SyncInventoryNBTPacket::encode).decoder(SyncInventoryNBTPacket::decode)
-                .consumerMainThread(SyncInventoryNBTPacket::handle).add();
+    @SubscribeEvent
+    public static void register(RegisterPayloadsEvent event) {
+        var r = event.registrar(OrbitalBackpack.MODID);
+        r.playToServer(OpenBackpackPacket.TYPE, OpenBackpackPacket.STREAM_CODEC, OpenBackpackPacket::handle);
+        r.playToServer(SortBackpackPacket.TYPE, SortBackpackPacket.STREAM_CODEC, SortBackpackPacket::handle);
+        r.playToServer(DepositAllPacket.TYPE, DepositAllPacket.STREAM_CODEC, DepositAllPacket::handle);
+        r.playToServer(WithdrawAllPacket.TYPE, WithdrawAllPacket.STREAM_CODEC, WithdrawAllPacket::handle);
+        r.playToServer(MagnetTogglePacket.TYPE, MagnetTogglePacket.STREAM_CODEC, MagnetTogglePacket::handle);
+        r.playToClient(SyncInventoryNBTPacket.TYPE, SyncInventoryNBTPacket.STREAM_CODEC, SyncInventoryNBTPacket::handle);
+        r.playToServer(PickupBackpackPacket.TYPE, PickupBackpackPacket.STREAM_CODEC, PickupBackpackPacket::handle);
     }
 }

@@ -1,47 +1,37 @@
 package com.orbital.orbitalbackpack.network;
 
-import com.orbital.orbitalbackpack.compat.CuriosCompat;
 import com.orbital.orbitalbackpack.util.ItemData;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import net.neoforged.fml.DistExecutor;
+public record SyncInventoryNBTPacket(int slotIndex, CompoundTag inventoryNBT)
+        implements CustomPacketPayload {
 
-public class SyncInventoryNBTPacket {
+    public static final Type<SyncInventoryNBTPacket> TYPE = new Type<>(
+            ResourceLocation.fromNamespaceAndPath("orbitalbackpack", "sync_inventory_nbt"));
 
-    private final int slotIndex;
-    private final CompoundTag inventoryNBT;
+    public static final StreamCodec<net.minecraft.network.FriendlyByteBuf, SyncInventoryNBTPacket> STREAM_CODEC =
+            StreamCodec.composite(
+                    ByteBufCodecs.INT, SyncInventoryNBTPacket::slotIndex,
+                    ByteBufCodecs.COMPOUND_TAG, SyncInventoryNBTPacket::inventoryNBT,
+                    SyncInventoryNBTPacket::new
+            );
 
-    public SyncInventoryNBTPacket(int slotIndex, CompoundTag inventoryNBT) {
-        this.slotIndex = slotIndex;
-        this.inventoryNBT = inventoryNBT;
-    }
+    @Override
+    public Type<? extends CustomPacketPayload> type() { return TYPE; }
 
-    public static void encode(SyncInventoryNBTPacket packet, FriendlyByteBuf buf) {
-        buf.writeInt(packet.slotIndex);
-        buf.writeNbt(packet.inventoryNBT);
-    }
-
-    public static SyncInventoryNBTPacket decode(FriendlyByteBuf buf) {
-        return new SyncInventoryNBTPacket(buf.readInt(), buf.readNbt());
-    }
-
-    public static void handle(SyncInventoryNBTPacket packet, CustomPayloadEvent.Context ctx) {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            Player player = Minecraft.getInstance().player;
-            if (player == null) return;
-            if (packet.slotIndex == -1) {
-                CuriosCompat.updateBackStackNBT(player, packet.inventoryNBT);
-            } else {
-                ItemStack stack = player.getInventory().getItem(packet.slotIndex);
-                if (!stack.isEmpty()) {
-                    ItemData.edit(stack, tag -> tag.put("inventory", packet.inventoryNBT));
-                }
-            }
-        });
+    public static void handle(SyncInventoryNBTPacket packet, IPayloadContext ctx) {
+        Player player = ctx.player();
+        if (player == null) return;
+        ItemStack stack = player.getInventory().getItem(packet.slotIndex());
+        if (!stack.isEmpty()) {
+            ItemData.edit(stack, tag -> tag.put("inventory", packet.inventoryNBT()));
+        }
     }
 }

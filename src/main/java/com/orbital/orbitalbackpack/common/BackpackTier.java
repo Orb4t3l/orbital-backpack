@@ -1,5 +1,6 @@
 package com.orbital.orbitalbackpack.common;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.resources.ResourceLocation;
 
 public enum BackpackTier {
@@ -10,6 +11,7 @@ public enum BackpackTier {
     NETHERITE(7);
 
     private final int rows;
+    public static final Codec<BackpackTier> CODEC = net.minecraft.util.StringRepresentable.fromEnum(BackpackTier::values);
 
     BackpackTier(int rows) {
         this.rows = rows;

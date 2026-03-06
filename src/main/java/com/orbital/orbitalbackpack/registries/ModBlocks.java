@@ -23,6 +23,7 @@ public class ModBlocks {
     public static final DeferredRegister<Item> BLOCK_ITEMS =
             DeferredRegister.create(BuiltInRegistries.ITEM, MODID);
 
+
     public static final Map<BackpackTier, DeferredHolder<Block, Block>> BLOCKS_MAP = new EnumMap<>(BackpackTier.class);
 
     static {
@@ -36,10 +37,5 @@ public class ModBlocks {
 
     public static DeferredHolder<Block, Block> get(BackpackTier tier) {
         return BLOCKS_MAP.get(tier);
-    }
-
-    public static void register(IEventBus eventBus) {
-        BLOCKS.register(eventBus);
-        BLOCK_ITEMS.register(eventBus);
     }
 }
