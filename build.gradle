@@ -35,6 +35,7 @@ repositories {
 
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
+    compileOnly "top.theillusivec4.curios:curios-neoforge:9.0.+:api"
 }
 
 tasks.named('processResources', ProcessResources).configure {

@@ -3,10 +3,10 @@ package com.orbital.orbitalbackpack.registries;
 import com.orbital.orbitalbackpack.blocks.BackpackBlockEntity;
 import com.orbital.orbitalbackpack.common.BackpackTier;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.eventbus.api.IEventBus;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.ForgeRegistries;
-import net.neoforged.neoforge.registries.RegistryObject;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import java.util.Arrays;

@@ -117,7 +117,7 @@
            - Installer tools 1.3.0 -> 1.4.1
  - 47.2.20 Fix missing patch for Item.onInventoryTick. Closes #9812
  - 47.2.19 Make common DisplayTest registration tasks easier (#9823)
- - 47.2.18 Optimise ForgeConfigSpec and make Range public (#9824)
+ - 47.2.18 Optimise ModConfigSpec and make Range public (#9824)
            Backport of #9810 to 1.20.1
  - 47.2.17 Datagen addOptionalTag/s methods that allow passing the TagKey itself instead of passing the location (#9807) (#9808)
  - 47.2.16 Update VersionSupportMatrix.java (#9805)
@@ -211,7 +211,7 @@
  - 47.0.45 Add unordered creative tabs after vanilla and perform a second level sorting of tabs by registry name to ensure tabs are ordered the same between game restarts (#9612)
  - 47.0.44 Fix Early Loading window FPS snafu where it could spam (#9619)
            unlimited screen updates. Probably a good way to gently toast an ancient laptop.
- - 47.0.43 Make overloads consistent for defineListAllowEmpty in ForgeConfigSpec.Builder (#9604)
+ - 47.0.43 Make overloads consistent for defineListAllowEmpty in ModConfigSpec.Builder (#9604)
  - 47.0.42 Moved GameShuttingDownEvent hook to DedicatedServer class. Fixes #9601
  - 47.0.41 Fix PitcherCropBlock not calling canSustainPlant, not allowing it to be placed on custom farmland. Close #9611
  - 47.0.40 Add null check to NetworkHooks.openScreen. Closes #9597
@@ -560,10 +560,10 @@
  - 43.1.36 Add a cancellable event that gets fired when a Totem of Undying is used (#9069)
  - 43.1.35 Fix performance issue and logging when resource caching is enabled (#9029)
  - 43.1.34 Fix NPE when feeding wolves and cats (#9074)
- - 43.1.33 Fix logically breaking change to ForgeConfigSpec.Builder#comment where modders could not add a empty line to the start of comments. (#9061)
+ - 43.1.33 Fix logically breaking change to ModConfigSpec.Builder#comment where modders could not add a empty line to the start of comments. (#9061)
  - 43.1.32 Fix ServiceLoader bug
  - 43.1.31 Fix ClientChatReceivedEvent for system messages
- - 43.1.30 Make ForgeConfigSpec$Builder.comment able to be called multiple times for the same entry. (#9056)
+ - 43.1.30 Make ModConfigSpec$Builder.comment able to be called multiple times for the same entry. (#9056)
  - 43.1.29 Fix control modifier for mac with `KeyMapping`s  using Alt instead of Super (#9057)
  - 43.1.28 Fix is_desert tag not being applied correctly. (#9051)
  - 43.1.27 Fix mob griefing event for SmallFireballs not using owner entity. (#9038)

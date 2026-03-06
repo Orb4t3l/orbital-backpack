@@ -4,10 +4,10 @@ package com.orbital.orbitalbackpack.registries;
 import com.orbital.orbitalbackpack.crafting.BackpackSmithingRecipe;
 import com.orbital.orbitalbackpack.crafting.BackpackUpgradeRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.neoforged.neoforge.eventbus.api.IEventBus;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.ForgeRegistries;
-import net.neoforged.neoforge.registries.RegistryObject;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import static com.orbital.orbitalbackpack.OrbitalBackpack.MODID;
 

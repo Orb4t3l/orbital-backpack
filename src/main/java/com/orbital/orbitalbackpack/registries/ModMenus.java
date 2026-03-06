@@ -6,8 +6,8 @@ import com.orbital.orbitalbackpack.common.BackpackTier;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.neoforge.common.extensions.IForgeMenuType;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.ForgeRegistries;
-import net.neoforged.neoforge.registries.RegistryObject;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.EnumMap;
 import java.util.Map;

@@ -14,20 +14,22 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.event.TickEvent;
-import net.neoforged.neoforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = OrbitalBackpack.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = OrbitalBackpack.MODID, bus = EventBusSubscriber.Bus.GAME)
 public class MagnetEventHandler {
 
     @SubscribeEvent
-    public static void onPlayerTick(TickEvent.PlayerTickEvent.Post event) {
-        Player player = event.player;
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
+        Player player = event.getEntity();
         if (player.level().isClientSide) return;
         if (!(player instanceof ServerPlayer serverPlayer)) return;
         if (player.tickCount % 5 != 0) return;
@@ -115,7 +117,7 @@ public class MagnetEventHandler {
             int syncSlot = isCurio ? -1 : inventorySlot;
             ModNetwork.CHANNEL.send(
                     new SyncInventoryNBTPacket(syncSlot, serialized),
-                    PacketDistributor.PLAYER.with(serverPlayer)
+                    PacketDistributor.sendToPlayer()(serverPlayer)
             );
         }
     }

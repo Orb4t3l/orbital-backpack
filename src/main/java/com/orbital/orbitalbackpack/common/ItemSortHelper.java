@@ -3,7 +3,7 @@ package com.orbital.orbitalbackpack.common;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -99,7 +99,7 @@ public class ItemSortHelper {
         items.sort(Comparator
                 .comparingInt(ItemSortHelper::getCategoryIndex)
                 .thenComparing(stack -> {
-                    var key = ForgeRegistries.ITEMS.getKey(stack.getItem());
+                    var key = BuiltInRegistries.ITEM.getKey(stack.getItem());
                     return key != null ? key.getPath() : "";
                 }));
 
@@ -145,7 +145,7 @@ public class ItemSortHelper {
                 || item instanceof FlintAndSteelItem) return 1;
         if (item instanceof ArmorItem) return 2;
 
-        var key = ForgeRegistries.ITEMS.getKey(item);
+        var key = BuiltInRegistries.ITEM.getKey(item);
         String id = key != null ? key.getPath() : "";
 
         if (id.contains("_ingot") || id.contains("_nugget") || id.contains("netherite_scrap")) return 3;

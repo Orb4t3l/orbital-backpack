@@ -5,10 +5,10 @@ import com.orbital.orbitalbackpack.common.BackpackTier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.eventbus.api.IEventBus;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.ForgeRegistries;
-import net.neoforged.neoforge.registries.RegistryObject;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -18,23 +18,23 @@ import static com.orbital.orbitalbackpack.OrbitalBackpack.MODID;
 public class ModBlocks {
 
     public static final DeferredRegister<Block> BLOCKS =
-            DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
+            DeferredRegister.create(BuiltInRegistries.BLOCK, MODID);
 
     public static final DeferredRegister<Item> BLOCK_ITEMS =
-            DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
+            DeferredRegister.create(BuiltInRegistries.ITEM, MODID);
 
-    public static final Map<BackpackTier, RegistryObject<Block>> BLOCKS_MAP = new EnumMap<>(BackpackTier.class);
+    public static final Map<BackpackTier, DeferredHolder<Block, Block>> BLOCKS_MAP = new EnumMap<>(BackpackTier.class);
 
     static {
         for (BackpackTier tier : BackpackTier.values()) {
             String name = tier.name().toLowerCase() + "_backpack_block";
-            RegistryObject<Block> block = BLOCKS.register(name, () -> new BackpackBlock(tier));
+            DeferredHolder<Block, Block> block = BLOCKS.register(name, () -> new BackpackBlock(tier));
             BLOCKS_MAP.put(tier, block);
             BLOCK_ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
         }
     }
 
-    public static RegistryObject<Block> get(BackpackTier tier) {
+    public static DeferredHolder<Block, Block> get(BackpackTier tier) {
         return BLOCKS_MAP.get(tier);
     }
 
