@@ -36,25 +36,11 @@ public class BackpackBlockEntity extends BlockEntity {
         }
     }
 
-    public ItemStackHandler getHandler() {
-        return handler;
-    }
-
-    public boolean isClaimed() {
-        return claimed;
-    }
-
-    public void setClaimed() {
-        this.claimed = true;
-    }
-
-    public boolean isOpen() {
-        return open;
-    }
-
-    public int getOpenTick() {
-        return openTick;
-    }
+    public ItemStackHandler getHandler() { return handler; }
+    public boolean isClaimed() { return claimed; }
+    public void setClaimed() { this.claimed = true; }
+    public boolean isOpen() { return open; }
+    public int getOpenTick() { return openTick; }
 
     public void setOpen(boolean open) {
         this.open = open;
@@ -81,8 +67,7 @@ public class BackpackBlockEntity extends BlockEntity {
     private void readTag(CompoundTag tag) {
         if (tag == null) return;
         if (tag.contains("inventory")) {
-            tag.put("inventory", handler.serializeNBT(level.registryAccess()));
-        }
+            tag.put("inventory", handler.serializeNBT(level.registryAccess()));        }
         if (tag.contains("claimed")) this.claimed = tag.getBoolean("claimed");
         if (tag.contains("openTick")) this.openTick = tag.getInt("openTick");
         if (tag.contains("open")) this.open = tag.getBoolean("open");
@@ -113,4 +98,4 @@ public class BackpackBlockEntity extends BlockEntity {
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
-}
+    }

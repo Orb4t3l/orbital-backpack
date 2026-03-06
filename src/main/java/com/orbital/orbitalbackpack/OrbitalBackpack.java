@@ -1,7 +1,7 @@
 package com.orbital.orbitalbackpack;
 
 import com.mojang.logging.LogUtils;
-//import com.orbital.orbitalbackpack.compat.CuriosCompat;
+import com.orbital.orbitalbackpack.compat.CuriosCompat;
 import com.orbital.orbitalbackpack.network.ModNetwork;
 import com.orbital.orbitalbackpack.registries.*;
 import net.minecraft.world.item.Item;
@@ -45,13 +45,13 @@ public class OrbitalBackpack {
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             ModNetwork.register();
-//            if (ModList.get().isLoaded("curios")) {
-//                List<Item> backpacks = new ArrayList<>(ModItems.BACKPACKS.values()
-//                        .stream()
-//                        .map(ro -> ro.get())
-//                        .toList());
-//                CuriosCompat.registerCurioItems(backpacks);
-//            }
+            if (ModList.get().isLoaded("curios")) {
+                List<Item> backpacks = new ArrayList<>(ModItems.BACKPACKS.values()
+                        .stream()
+                        .map(ro -> ro.get())
+                        .toList());
+                CuriosCompat.registerCurioItems(backpacks);
+            }
         });
     }
 

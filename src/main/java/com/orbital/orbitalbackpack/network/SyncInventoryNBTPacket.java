@@ -1,6 +1,6 @@
 package com.orbital.orbitalbackpack.network;
 
-//import com.orbital.orbitalbackpack.compat.CuriosCompat;
+import com.orbital.orbitalbackpack.compat.CuriosCompat;
 import com.orbital.orbitalbackpack.util.ItemData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
@@ -35,7 +35,7 @@ public class SyncInventoryNBTPacket {
             Player player = Minecraft.getInstance().player;
             if (player == null) return;
             if (packet.slotIndex == -1) {
-//                CuriosCompat.updateBackStackNBT(player, packet.inventoryNBT);
+                CuriosCompat.updateBackStackNBT(player, packet.inventoryNBT);
             } else {
                 ItemStack stack = player.getInventory().getItem(packet.slotIndex);
                 if (!stack.isEmpty()) {
