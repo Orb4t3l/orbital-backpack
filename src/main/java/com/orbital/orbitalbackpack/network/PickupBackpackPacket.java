@@ -22,7 +22,7 @@ public record PickupBackpackPacket(BlockPos pos, BackpackTier tier)
 
     public static final StreamCodec<ByteBuf, PickupBackpackPacket> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, PickupBackpackPacket::pos,
-            ByteBufCodecs.fromCodec(BackpackTier.CODEC), PickupBackpackPacket::tier,
+            BackpackTier.STREAM_CODEC, PickupBackpackPacket::tier,
             PickupBackpackPacket::new
     );
 
