@@ -42,7 +42,7 @@ public class BackpackBlock extends BaseEntityBlock {
     }
 
     // Use Shapes.create(AABB) to avoid the broken Block.box() reobf mapping
-    private static final VoxelShape SHAPE = Shapes.create(new AABB(4/16.0, 0/16.0, 4/16.0, 12/16.0, 12/16.0, 12/16.0));
+    private static final VoxelShape SHAPE = Shapes.box(0.25, 0.0, 0.25, 0.75, 0.75, 0.75);
 
     private final BackpackTier tier;
 
