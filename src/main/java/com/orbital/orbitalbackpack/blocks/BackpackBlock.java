@@ -42,7 +42,14 @@ public class BackpackBlock extends BaseEntityBlock {
     }
 
     // Use Shapes.create(AABB) to avoid the broken Block.box() reobf mapping
-    private static final VoxelShape SHAPE = Shapes.box(0.25, 0.0, 0.25, 0.75, 0.75, 0.75);
+    private static VoxelShape SHAPE = null;
+
+    private static VoxelShape getShape() {
+        if (SHAPE == null) {
+            SHAPE = Shapes.box(0.25, 0.0, 0.25, 0.75, 0.75, 0.75);
+        }
+        return SHAPE;
+    }
 
     private final BackpackTier tier;
 
@@ -55,7 +62,7 @@ public class BackpackBlock extends BaseEntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
+        return getShape();
     }
 
     @Override
