@@ -23,7 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 //import top.theillusivec4.curios.api.SlotContext;
 //import top.theillusivec4.curios.api.type.capability.ICurio;
 //import top.theillusivec4.curios.api.type.capability.ICurioItem;

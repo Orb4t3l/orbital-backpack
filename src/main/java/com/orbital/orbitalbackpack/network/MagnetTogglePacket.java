@@ -5,7 +5,7 @@ import com.orbital.orbitalbackpack.util.ItemData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.network.CustomPayloadEvent;
+import net.neoforged.neoforge.event.network.CustomPayloadEvent;
 
 public class MagnetTogglePacket {
 

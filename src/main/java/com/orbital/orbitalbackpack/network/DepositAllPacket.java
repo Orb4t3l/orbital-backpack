@@ -9,8 +9,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.network.CustomPayloadEvent;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.event.network.CustomPayloadEvent;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 public class DepositAllPacket {
 

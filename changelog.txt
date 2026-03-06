@@ -69,7 +69,7 @@
            - Updated Nashorn to 15.4
  - 47.3.11 Remove unneeded boat patch (backport of #10061 to 1.20.1) (#10096)
            Co-authored-by: andan42 <49289986+andan42@users.noreply.github.com>
- - 47.3.10 Optionally supply FMLJavaModLoadingContext as a param to mod constructors (backport of #10074 to 1.20.1) (#10100)
+ - 47.3.10 Optionally supply ModLoadingContext as a param to mod constructors (backport of #10074 to 1.20.1) (#10100)
            Co-authored-by: RealMangoRage <andrew333awesome@outlook.com>
  - 47.3.9  Minor cleanup to ModListScreen and VersionChecker (backport of #9988 to 1.20.1) (#10095)
  - 47.3.8  Cleanup FML Bindings (backport of #10004 to 1.20.1) (#10094)

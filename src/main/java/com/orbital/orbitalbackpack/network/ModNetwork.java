@@ -2,8 +2,8 @@ package com.orbital.orbitalbackpack.network;
 
 import com.orbital.orbitalbackpack.OrbitalBackpack;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.ChannelBuilder;
-import net.minecraftforge.network.SimpleChannel;
+import net.neoforged.neoforge.network.ChannelBuilder;
+import net.neoforged.neoforge.network.SimpleChannel;
 
 public class ModNetwork {
 
