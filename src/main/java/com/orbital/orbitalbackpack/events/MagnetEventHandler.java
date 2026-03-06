@@ -13,7 +13,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -108,17 +107,11 @@ public class MagnetEventHandler {
         CompoundTag serialized = handler.serializeNBT(player.registryAccess());
 
         if (openMenu != null) {
-            // Menu is open — update item stack and broadcast slot changes
             ItemData.set(backpackStack, "inventory", serialized);
             openMenu.broadcastChanges();
         } else {
-            // Menu closed — save to item and sync to client
             ItemData.set(backpackStack, "inventory", serialized);
-            int syncSlot = isCurio ? -1 : inventorySlot;
-            ModNetwork.CHANNEL.send(
-                    new SyncInventoryNBTPacket(syncSlot, serialized),
-                    PacketDistributor.sendToPlayer()(serverPlayer)
-            );
+            PacketDistributor.sendToPlayer(serverPlayer, new SyncInventoryNBTPacket(inventorySlot, serialized));
         }
     }
 
