@@ -3,7 +3,10 @@ package com.orbital.orbitalbackpack.blocks;
 import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.registries.ModBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -11,18 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * BackpackBlockEntity - updated for 1.20.5+ (1.20.6-ish) style.
- *
- * Notes:
- * - Provides both load(BlockState, CompoundTag) and load(CompoundTag) entrypoints,
- *   forwarded to a single readTag(...) helper so the logic is centralized.
- * - Uses saveAdditional(CompoundTag) to write the inventory.
- * - Includes client sync helpers (getUpdateTag / getUpdatePacket).
- *
- * If your specific mapping still complains about an override mismatch, remove/add @Override
- * from the methods the compiler expects; the body logic will remain correct.
- */
+
 public class BackpackBlockEntity extends BlockEntity {
 
     private final ItemStackHandler handler;
@@ -44,11 +36,25 @@ public class BackpackBlockEntity extends BlockEntity {
         }
     }
 
-    public ItemStackHandler getHandler() { return handler; }
-    public boolean isClaimed() { return claimed; }
-    public void setClaimed() { this.claimed = true; }
-    public boolean isOpen() { return open; }
-    public int getOpenTick() { return openTick; }
+    public ItemStackHandler getHandler() {
+        return handler;
+    }
+
+    public boolean isClaimed() {
+        return claimed;
+    }
+
+    public void setClaimed() {
+        this.claimed = true;
+    }
+
+    public boolean isOpen() {
+        return open;
+    }
+
+    public int getOpenTick() {
+        return openTick;
+    }
 
     public void setOpen(boolean open) {
         this.open = open;
@@ -60,14 +66,6 @@ public class BackpackBlockEntity extends BlockEntity {
         }
     }
 
-    /* -----------------------
-       Persistence helpers
-       ----------------------- */
-
-    /**
-     * State-aware load entrypoint used in newer mappings.
-     * Provided without @Override to avoid mapping mismatch errors.
-     */
     public void load(BlockState state, CompoundTag tag) {
 
         readTag(tag);
@@ -83,30 +81,36 @@ public class BackpackBlockEntity extends BlockEntity {
     private void readTag(CompoundTag tag) {
         if (tag == null) return;
         if (tag.contains("inventory")) {
-            handler.deserializeNBT(tag.getCompound("inventory"));
+            tag.put("inventory", handler.serializeNBT(level.registryAccess()));
         }
         if (tag.contains("claimed")) this.claimed = tag.getBoolean("claimed");
         if (tag.contains("openTick")) this.openTick = tag.getInt("openTick");
         if (tag.contains("open")) this.open = tag.getBoolean("open");
     }
 
-    protected void saveAdditional(CompoundTag tag) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         if (tag == null) return;
-        tag.put("inventory", handler.serializeNBT());
+        handler.deserializeNBT(level.registryAccess(), tag.getCompound("inventory"));
         tag.putBoolean("claimed", this.claimed);
         tag.putBoolean("open", this.open);
         tag.putInt("openTick", this.openTick);
-        // If your mapping expects a super.saveAdditional(tag) call, add it here.
     }
 
-    public CompoundTag getUpdateTag() {
+    @Override
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        handler.deserializeNBT(registries, tag.getCompound("inventory"));
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
+        saveAdditional(tag, registries);
         return tag;
     }
 
-    @Nullable
-    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 }

@@ -22,17 +22,17 @@ import net.minecraftforge.network.PacketDistributor;
 public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 
     private static final ResourceLocation PICKUP_BUTTON_TEXTURE =
-            new ResourceLocation("orbitalbackpack", "textures/gui/pickup_button.png");
+            ResourceLocation.fromNamespaceAndPath("orbitalbackpack", "textures/gui/pickup_button.png");
     private static final ResourceLocation SORT_BUTTON_TEXTURE =
-            new ResourceLocation("orbitalbackpack", "textures/gui/sort_button.png");
+            ResourceLocation.fromNamespaceAndPath("orbitalbackpack", "textures/gui/sort_button.png");
     private static final ResourceLocation DEPOSIT_BUTTON_TEXTURE =
-            new ResourceLocation("orbitalbackpack", "textures/gui/deposit_button.png");
+            ResourceLocation.fromNamespaceAndPath("orbitalbackpack", "textures/gui/deposit_button.png");
     private static final ResourceLocation WITHDRAW_BUTTON_TEXTURE =
-            new ResourceLocation("orbitalbackpack", "textures/gui/withdraw_button.png");
+            ResourceLocation.fromNamespaceAndPath("orbitalbackpack", "textures/gui/withdraw_button.png");
     private static final ResourceLocation MAGNET_BUTTON_TEXTURE =
-            new ResourceLocation("orbitalbackpack", "textures/gui/magnet_button.png");
+            ResourceLocation.fromNamespaceAndPath("orbitalbackpack", "textures/gui/magnet_button.png");
     private static final ResourceLocation MAGNET_LOCKED_TEXTURE =
-            new ResourceLocation("orbitalbackpack", "textures/gui/magnet_locked_button.png");
+            ResourceLocation.fromNamespaceAndPath("orbitalbackpack", "textures/gui/magnet_locked_button.png");
 
     private final BackpackTier tier;
     private EditBox searchBox;

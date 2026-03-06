@@ -56,7 +56,7 @@ public class BackpackBlockEntityRenderer implements BlockEntityRenderer<Backpack
         ResourceLocation texture = entity.getBlockState().getBlock() instanceof
                 com.orbital.orbitalbackpack.blocks.BackpackBlock bb
                 ? getTexture(bb.getTier())
-                : new ResourceLocation("orbitalbackpack", "textures/block/leather_backpack_block.png");
+                : ResourceLocation.fromNamespaceAndPath("orbitalbackpack", "textures/block/leather_backpack_block.png");
 
         float lidAngle = getLidAngle(entity, partialTick);
 
@@ -95,7 +95,7 @@ public class BackpackBlockEntityRenderer implements BlockEntityRenderer<Backpack
     }
 
     private ResourceLocation getTexture(com.orbital.orbitalbackpack.common.BackpackTier tier) {
-        return new ResourceLocation("orbitalbackpack",
+        return ResourceLocation.fromNamespaceAndPath("orbitalbackpack",
                 "textures/block/" + tier.name().toLowerCase() + "_backpack_block.png");
     }
 }

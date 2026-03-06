@@ -46,7 +46,7 @@ public final class ClientSetup {
                 MenuScreens.register(ModMenus.MENUS.get(tier).get(), BackpackScreen::new);
                 ItemProperties.register(
                         ModItems.BACKPACKS.get(tier).get(),
-                        new ResourceLocation(OrbitalBackpack.MODID, "open"),
+                        ResourceLocation.fromNamespaceAndPath(OrbitalBackpack.MODID, "open"),
                         (stack, level, entity, seed) -> {
                             if (entity == null) return 0f;
                             Minecraft mc = Minecraft.getInstance();

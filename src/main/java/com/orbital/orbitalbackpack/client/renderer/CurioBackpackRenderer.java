@@ -68,7 +68,7 @@ public class CurioBackpackRenderer implements ICurioRenderer {
         if (!(stack.getItem() instanceof Backpack backpack)) return;
 
         BackpackTier tier = backpack.getTier();
-        ResourceLocation texture = new ResourceLocation("orbitalbackpack",
+        ResourceLocation texture = ResourceLocation.fromNamespaceAndPath("orbitalbackpack",
                 "textures/block/" + tier.name().toLowerCase() + "_backpack_block.png");
 
         poseStack.pushPose();
