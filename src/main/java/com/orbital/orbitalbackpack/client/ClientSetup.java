@@ -2,7 +2,7 @@ package com.orbital.orbitalbackpack.client;
 
 import com.orbital.orbitalbackpack.OrbitalBackpack;
 import com.orbital.orbitalbackpack.client.renderer.BackpackBlockEntityRenderer;
-import com.orbital.orbitalbackpack.client.renderer.CurioBackpackRenderer;
+//import com.orbital.orbitalbackpack.client.renderer.CurioBackpackRenderer;
 import com.orbital.orbitalbackpack.client.screen.BackpackScreen;
 import com.orbital.orbitalbackpack.client.tooltip.BackpackClientTooltipComponent;
 import com.orbital.orbitalbackpack.client.tooltip.BackpackTooltipComponent;
@@ -26,7 +26,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.lwjgl.glfw.GLFW;
-import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
+//import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 @Mod.EventBusSubscriber(modid = OrbitalBackpack.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class ClientSetup {
@@ -56,12 +56,12 @@ public final class ClientSetup {
                 );
 
                 // Register curio renderer for each tier
-                if (ModList.get().isLoaded("curios")) {
-                    CuriosRendererRegistry.register(
-                            ModItems.BACKPACKS.get(tier).get(),
-                            CurioBackpackRenderer::new
-                    );
-                }
+//                if (ModList.get().isLoaded("curios")) {
+//                    CuriosRendererRegistry.register(
+//                            ModItems.BACKPACKS.get(tier).get(),
+//                            CurioBackpackRenderer::new
+//                    );
+//                }
             }
 
             BlockEntityRenderers.register(ModBlockEntities.BACKPACK_BE.get(),

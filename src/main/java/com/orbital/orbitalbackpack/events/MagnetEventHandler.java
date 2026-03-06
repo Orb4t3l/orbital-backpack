@@ -2,7 +2,7 @@ package com.orbital.orbitalbackpack.events;
 
 import com.orbital.orbitalbackpack.OrbitalBackpack;
 import com.orbital.orbitalbackpack.client.menu.BackpackMenu;
-import com.orbital.orbitalbackpack.compat.CuriosCompat;
+//import com.orbital.orbitalbackpack.compat.CuriosCompat;
 import com.orbital.orbitalbackpack.items.Backpack;
 import com.orbital.orbitalbackpack.network.ModNetwork;
 import com.orbital.orbitalbackpack.network.SyncInventoryNBTPacket;
@@ -45,16 +45,16 @@ public class MagnetEventHandler {
             }
         }
 
-        boolean isCurio = false;
-        if (backpackStack.isEmpty() && CuriosCompat.isLoaded()) {
-            ItemStack curioStack = CuriosCompat.getBackStack(player);
-            if (!curioStack.isEmpty()
-                    && curioStack.getItem() instanceof Backpack
-                    && ItemData.getBoolean(curioStack, "magnet")) {
-                backpackStack = curioStack;
-                isCurio = true;
-            }
-        }
+//        boolean isCurio = false;
+//        if (backpackStack.isEmpty() && CuriosCompat.isLoaded()) {
+//            ItemStack curioStack = CuriosCompat.getBackStack(player);
+//            if (!curioStack.isEmpty()
+//                    && curioStack.getItem() instanceof Backpack
+//                    && ItemData.getBoolean(curioStack, "magnet")) {
+//                backpackStack = curioStack;
+//                isCurio = true;
+//            }
+//        }
 
         if (backpackStack.isEmpty()) return;
         if (!(backpackStack.getItem() instanceof Backpack backpack)) return;
@@ -112,7 +112,7 @@ public class MagnetEventHandler {
         } else {
             // Menu closed — save to item and sync to client
             ItemData.set(backpackStack, "inventory", serialized);
-            int syncSlot = isCurio ? -1 : inventorySlot;
+            int syncSlot = inventorySlot;
             ModNetwork.CHANNEL.send(
                     new SyncInventoryNBTPacket(syncSlot, serialized),
                     PacketDistributor.PLAYER.with(serverPlayer)

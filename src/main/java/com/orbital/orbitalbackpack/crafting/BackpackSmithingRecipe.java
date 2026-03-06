@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SmithingRecipe;
+import net.minecraft.world.item.crafting.SmithingRecipeInput;
 import net.minecraft.world.level.Level;
 
 public class BackpackSmithingRecipe implements SmithingRecipe {
@@ -19,17 +20,16 @@ public class BackpackSmithingRecipe implements SmithingRecipe {
     public BackpackSmithingRecipe() {}
 
     @Override
-    public boolean matches(Container container, Level level) {
-        return container.getItem(0).is(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE)
-                && container.getItem(1).getItem() == ModItems.BACKPACKS.get(BackpackTier.DIAMOND).get()
-                && container.getItem(2).is(Items.NETHERITE_INGOT);
+    public boolean matches(SmithingRecipeInput input, Level level) {
+        return input.template().is(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE)
+                && input.base().getItem() == ModItems.BACKPACKS.get(BackpackTier.DIAMOND).get()
+                && input.addition().is(Items.NETHERITE_INGOT);
     }
 
     @Override
-    public ItemStack assemble(Container container, HolderLookup.Provider access) {
-        ItemStack base = container.getItem(1);
+    public ItemStack assemble(SmithingRecipeInput input, HolderLookup.Provider access) {
+        ItemStack base = input.base();
         ItemStack result = new ItemStack(ModItems.BACKPACKS.get(BackpackTier.NETHERITE).get());
-        // Copy custom data component if present
         var customData = base.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
         if (customData != null) result.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA, customData);
         return result;

@@ -34,9 +34,9 @@ public class ModNetwork {
                 .encoder(MagnetTogglePacket::encode).decoder(MagnetTogglePacket::decode)
                 .consumerMainThread(MagnetTogglePacket::handle).add();
 
-        CHANNEL.messageBuilder(OpenBackSlotPacket.class, 5)
-                .encoder(OpenBackSlotPacket::encode).decoder(OpenBackSlotPacket::decode)
-                .consumerMainThread(OpenBackSlotPacket::handle).add();
+//        CHANNEL.messageBuilder(OpenBackSlotPacket.class, 5)
+//                .encoder(OpenBackSlotPacket::encode).decoder(OpenBackSlotPacket::decode)
+//                .consumerMainThread(OpenBackSlotPacket::handle).add();
 
         CHANNEL.messageBuilder(SyncInventoryNBTPacket.class, 6)
                 .encoder(SyncInventoryNBTPacket::encode).decoder(SyncInventoryNBTPacket::decode)

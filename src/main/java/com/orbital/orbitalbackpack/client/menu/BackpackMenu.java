@@ -16,7 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.items.ItemStackHandler;
-import top.theillusivec4.curios.api.CuriosApi;
+//import top.theillusivec4.curios.api.CuriosApi;
 
 public class BackpackMenu extends AbstractContainerMenu {
 
@@ -86,19 +86,19 @@ public class BackpackMenu extends AbstractContainerMenu {
             }
         }
 
-        boolean isCurio = buf.readBoolean();
-        if (isCurio && ModList.get().isLoaded("curios")) {
-            ItemStack curioStack = ItemStack.EMPTY;
-            try {
-                curioStack = CuriosApi.getCuriosHelper()
-                        .getCuriosHandler(inv.player)
-                        .map(h -> h.getStacksHandler("back")
-                                .map(s -> s.getStacks().getStackInSlot(0))
-                                .orElse(ItemStack.EMPTY))
-                        .orElse(ItemStack.EMPTY);
-            } catch (Exception ignored) {}
-            return new BackpackMenu(menuType, id, inv, tier, curioStack);
-        }
+//        boolean isCurio = buf.readBoolean();
+//        if (isCurio && ModList.get().isLoaded("curios")) {
+//            ItemStack curioStack = ItemStack.EMPTY;
+//            try {
+//                curioStack = CuriosApi.getCuriosHelper()
+//                        .getCuriosHandler(inv.player)
+//                        .map(h -> h.getStacksHandler("back")
+//                                .map(s -> s.getStacks().getStackInSlot(0))
+//                                .orElse(ItemStack.EMPTY))
+//                        .orElse(ItemStack.EMPTY);
+//            } catch (Exception ignored) {}
+//            return new BackpackMenu(menuType, id, inv, tier, curioStack);
+//        }
 
         InteractionHand hand = buf.readBoolean() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
         return new BackpackMenu(menuType, id, inv, hand, tier);
@@ -142,19 +142,19 @@ public class BackpackMenu extends AbstractContainerMenu {
                 backpackBE.setOpen(false);
                 backpackBE.setChanged();
             }
-        } else if (isCurioSlot) {
-            if (ModList.get().isLoaded("curios")) {
-                try {
-                    CuriosApi.getCuriosHelper()
-                            .getCuriosHandler(player)
-                            .ifPresent(h -> h.getStacksHandler("back").ifPresent(stacks -> {
-                                ItemStack slotStack = stacks.getStacks().getStackInSlot(0);
-                                if (!slotStack.isEmpty()) {
-                                    ItemData.edit(slotStack, tag -> tag.put("inventory", handler.serializeNBT(player.registryAccess())));
-                                }
-                            }));
-                } catch (Exception ignored) {}
-            }
+//        } else if (isCurioSlot) {
+//            if (ModList.get().isLoaded("curios")) {
+//                try {
+//                    CuriosApi.getCuriosHelper()
+//                            .getCuriosHandler(player)
+//                            .ifPresent(h -> h.getStacksHandler("back").ifPresent(stacks -> {
+//                                ItemStack slotStack = stacks.getStacks().getStackInSlot(0);
+//                                if (!slotStack.isEmpty()) {
+//                                    ItemData.edit(slotStack, tag -> tag.put("inventory", handler.serializeNBT(player.registryAccess())));
+//                                }
+//                            }));
+//                } catch (Exception ignored) {}
+//            }
         } else {
             ItemStack stack = player.getItemInHand(hand);
             if (!stack.isEmpty()) {

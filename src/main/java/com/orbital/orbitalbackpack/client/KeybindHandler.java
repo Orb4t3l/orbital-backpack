@@ -1,9 +1,9 @@
 package com.orbital.orbitalbackpack.client;
 
 import com.orbital.orbitalbackpack.OrbitalBackpack;
-import com.orbital.orbitalbackpack.compat.CuriosCompat;
+//import com.orbital.orbitalbackpack.compat.CuriosCompat;
 import com.orbital.orbitalbackpack.network.ModNetwork;
-import com.orbital.orbitalbackpack.network.OpenBackSlotPacket;
+//import com.orbital.orbitalbackpack.network.OpenBackSlotPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
@@ -19,11 +19,11 @@ public class KeybindHandler {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.screen != null) return;
 
-        if (ClientSetup.OPEN_BACK_BACKPACK.consumeClick()) {
-            if (CuriosCompat.isLoaded() && CuriosCompat.hasBackpackEquipped(mc.player)) {
-                ModNetwork.CHANNEL.send(new OpenBackSlotPacket(), PacketDistributor.SERVER.noArg());
-
-            }
+//        if (ClientSetup.OPEN_BACK_BACKPACK.consumeClick()) {
+//            if (CuriosCompat.isLoaded() && CuriosCompat.hasBackpackEquipped(mc.player)) {
+//                ModNetwork.CHANNEL.send(new OpenBackSlotPacket(), PacketDistributor.SERVER.noArg());
+//
+//            }
         }
     }
-}
+//}
