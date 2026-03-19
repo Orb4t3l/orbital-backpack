@@ -5,6 +5,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.ModList;
+import top.theillusivec4.curios.api.CuriosApi;
+import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
+
+import java.util.Optional;
 
 public class CuriosCompat {
 
@@ -30,10 +34,10 @@ public class CuriosCompat {
     private static class CuriosHelper {
         static ItemStack getBackStack(Player player) {
             try {
-                var optional = top.theillusivec4.curios.api.CuriosApi.getCuriosInventory(player);
+                Optional<ICuriosItemHandler> optional = CuriosApi.getCuriosInventory(player);
                 if (optional.isEmpty()) return ItemStack.EMPTY;
-                return optional.get().getStacksHandler("back")
-                        .map(s -> s.getStacks().getStackInSlot(0))
+                return optional.get().findCurio("back", 0)
+                        .map(info -> info.stack())
                         .orElse(ItemStack.EMPTY);
             } catch (Exception e) {
                 return ItemStack.EMPTY;
@@ -46,13 +50,13 @@ public class CuriosCompat {
 
         static void updateBackStackNBT(Player player, CompoundTag inventoryNBT) {
             try {
-                top.theillusivec4.curios.api.CuriosApi.getCuriosInventory(player)
-                        .ifPresent(h -> h.getStacksHandler("back").ifPresent(stacks -> {
-                            ItemStack stack = stacks.getStacks().getStackInSlot(0);
-                            if (!stack.isEmpty()) {
-                                ItemData.set(stack, "inventory", inventoryNBT);
-                            }
-                        }));
+                CuriosApi.getCuriosInventory(player).ifPresent(h -> {
+                    h.findCurio("back", 0).ifPresent(info -> {
+                        if (!info.stack().isEmpty()) {
+                            ItemData.set(info.stack(), "inventory", inventoryNBT);
+                        }
+                    });
+                });
             } catch (Exception ignored) {}
         }
     }

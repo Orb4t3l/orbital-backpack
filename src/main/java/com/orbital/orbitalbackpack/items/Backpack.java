@@ -100,7 +100,7 @@ public class Backpack extends Item {
                             Component.translatable("item.orbitalbackpack."
                                     + tier.name().toLowerCase() + "_backpack")
                     ),
-                    (net.minecraft.network.FriendlyByteBuf buf) -> {
+                    (net.minecraft.network.RegistryFriendlyByteBuf buf) -> {
                         buf.writeBoolean(false);
                         buf.writeBoolean(false);
                         buf.writeBoolean(isMainHand);

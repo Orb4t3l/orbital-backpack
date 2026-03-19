@@ -172,45 +172,32 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
 
     private void onPickupClicked() {
         if (this.menu.isBlockBased() && this.menu.getBlockPos() != null) {
-            ModNetwork.CHANNEL.send(
-                    new PickupBackpackPacket(this.menu.getBlockPos(), tier),
-                    );
+            PacketDistributor.sendToServer(new PickupBackpackPacket(this.menu.getBlockPos(), tier));
         }
     }
 
     private void onSortClicked() {
-        boolean isBlock = this.menu.isBlockBased();
-        BlockPos pos = isBlock ? this.menu.getBlockPos() : null;
-        boolean isCurio = this.menu.isCurioSlot();
-        ModNetwork.CHANNEL.send(
-                new SortBackpackPacket(isBlock, pos, isCurio),
-                );
+        PacketDistributor.sendToServer(new SortBackpackPacket(this.menu.isBlockBased(), this.menu.getBlockPos()));
     }
 
     private void onDepositClicked() {
         boolean isBlock = this.menu.isBlockBased();
         BlockPos pos = isBlock ? this.menu.getBlockPos() : null;
         boolean isMainHand = this.menu.getHand() == InteractionHand.MAIN_HAND;
-        ModNetwork.CHANNEL.send(
-                new DepositAllPacket(isBlock, pos, isMainHand),
-                );
+        PacketDistributor.sendToServer(new DepositAllPacket(isBlock, pos, isMainHand));
     }
 
     private void onWithdrawClicked() {
         boolean isBlock = this.menu.isBlockBased();
         BlockPos pos = isBlock ? this.menu.getBlockPos() : null;
         boolean isMainHand = this.menu.getHand() == InteractionHand.MAIN_HAND;
-        ModNetwork.CHANNEL.send(
-                new WithdrawAllPacket(isBlock, pos, isMainHand),
-                );
+        PacketDistributor.sendToServer(new WithdrawAllPacket(isBlock, pos, isMainHand));
     }
 
     private void onMagnetClicked() {
         InteractionHand hand = this.menu.getHand();
         if (hand != null) {
-            ModNetwork.CHANNEL.send(
-                    new MagnetTogglePacket(hand == InteractionHand.MAIN_HAND),
-                    );
+            PacketDistributor.sendToServer(new MagnetTogglePacket(hand == InteractionHand.MAIN_HAND));
         }
     }
 

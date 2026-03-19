@@ -74,8 +74,7 @@ public class BackpackMenu extends AbstractContainerMenu {
         buildSlots(inv);
     }
 
-    public static BackpackMenu create(BackpackTier tier, int id, Inventory inv, FriendlyByteBuf buf) {
-        boolean isBlock = buf.readBoolean();
+    public static BackpackMenu create(BackpackTier tier, int id, Inventory inv, net.minecraft.network.RegistryFriendlyByteBuf buf) {        boolean isBlock = buf.readBoolean();
         MenuType<?> menuType = ModMenus.MENUS.get(tier).get();
 
         if (isBlock) {

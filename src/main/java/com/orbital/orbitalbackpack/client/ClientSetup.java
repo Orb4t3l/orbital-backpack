@@ -13,19 +13,17 @@ import com.orbital.orbitalbackpack.registries.ModMenus;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
-import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import org.lwjgl.glfw.GLFW;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
@@ -44,7 +42,6 @@ public final class ClientSetup {
     public static void onClientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             for (BackpackTier tier : BackpackTier.values()) {
-                MenuScreens.register(ModMenus.MENUS.get(tier).get(), BackpackScreen::new);
                 ItemProperties.register(
                         ModItems.BACKPACKS.get(tier).get(),
                         ResourceLocation.fromNamespaceAndPath(OrbitalBackpack.MODID, "open"),
@@ -56,7 +53,6 @@ public final class ClientSetup {
                         }
                 );
 
-                // Register curio renderer for each tier
                 if (ModList.get().isLoaded("curios")) {
                     CuriosRendererRegistry.register(
                             ModItems.BACKPACKS.get(tier).get(),
@@ -71,22 +67,19 @@ public final class ClientSetup {
     }
 
     @SubscribeEvent
+    public static void onRegisterMenuScreens(RegisterMenuScreensEvent event) {
+        for (BackpackTier tier : BackpackTier.values()) {
+            event.register(ModMenus.MENUS.get(tier).get(), BackpackScreen::new);
+        }
+    }
+
+    @SubscribeEvent
     public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(OPEN_BACK_BACKPACK);
     }
 
     @SubscribeEvent
-    public static void onRegisterTooltips(final RegisterClientTooltipComponentFactoriesEvent event) {
+    public static void onRegisterTooltips(RegisterClientTooltipComponentFactoriesEvent event) {
         event.register(BackpackTooltipComponent.class, BackpackClientTooltipComponent::new);
     }
-
-
-    //TODO: put model stuff
-//    public static final ModelLayerLocation BACKPACK_LAYER = new ModelLayerLocation(
-//            new ResourceLocation("orbitalbackpack", "backpack"), "main");
-//
-//    @SubscribeEvent
-//    public static void onRegisterLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
-//        event.registerLayerDefinition(BACKPACK_LAYER, BackpackModel::createBodyLayer);
-    //}
 }
