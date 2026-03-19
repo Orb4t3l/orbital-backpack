@@ -1,6 +1,7 @@
 package com.orbital.orbitalbackpack;
 
 import com.mojang.logging.LogUtils;
+import com.orbital.orbitalbackpack.compat.CurioBackpackItem;
 import com.orbital.orbitalbackpack.compat.CuriosCompat;
 import com.orbital.orbitalbackpack.network.ModNetwork;
 import com.orbital.orbitalbackpack.registries.*;
@@ -52,7 +53,9 @@ public class OrbitalBackpack {
                         .stream()
                         .map(ro -> ro.get())
                         .toList());
-                CuriosCompat.registerCurioItems(backpacks);
+                for (Item item : backpacks) {
+                    top.theillusivec4.curios.api.CuriosApi.registerCurio(item, CurioBackpackItem.INSTANCE);
+                }
             }
         });
     }

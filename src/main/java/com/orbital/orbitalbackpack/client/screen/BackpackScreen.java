@@ -174,7 +174,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         if (this.menu.isBlockBased() && this.menu.getBlockPos() != null) {
             ModNetwork.CHANNEL.send(
                     new PickupBackpackPacket(this.menu.getBlockPos(), tier),
-                    PacketDistributor.SERVER.noArg());
+                    );
         }
     }
 
@@ -184,7 +184,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         boolean isCurio = this.menu.isCurioSlot();
         ModNetwork.CHANNEL.send(
                 new SortBackpackPacket(isBlock, pos, isCurio),
-                PacketDistributor.SERVER.noArg());
+                );
     }
 
     private void onDepositClicked() {
@@ -193,7 +193,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         boolean isMainHand = this.menu.getHand() == InteractionHand.MAIN_HAND;
         ModNetwork.CHANNEL.send(
                 new DepositAllPacket(isBlock, pos, isMainHand),
-                PacketDistributor.SERVER.noArg());
+                );
     }
 
     private void onWithdrawClicked() {
@@ -202,7 +202,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         boolean isMainHand = this.menu.getHand() == InteractionHand.MAIN_HAND;
         ModNetwork.CHANNEL.send(
                 new WithdrawAllPacket(isBlock, pos, isMainHand),
-                PacketDistributor.SERVER.noArg());
+                );
     }
 
     private void onMagnetClicked() {
@@ -210,7 +210,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         if (hand != null) {
             ModNetwork.CHANNEL.send(
                     new MagnetTogglePacket(hand == InteractionHand.MAIN_HAND),
-                    PacketDistributor.SERVER.noArg());
+                    );
         }
     }
 

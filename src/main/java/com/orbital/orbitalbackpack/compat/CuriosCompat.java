@@ -27,20 +27,13 @@ public class CuriosCompat {
         CuriosHelper.updateBackStackNBT(player, inventoryNBT);
     }
 
-    public static void registerCurioItems(java.util.List<net.minecraft.world.item.Item> items) {
-        if (!isLoaded()) return;
-        CuriosHelper.registerCurioItems(items);
-    }
-
-    // All Curios API references are in here — only loaded when actually called
     private static class CuriosHelper {
         static ItemStack getBackStack(Player player) {
             try {
-                return top.theillusivec4.curios.api.CuriosApi.getCuriosHelper()
-                        .getCuriosHandler(player)
-                        .map(h -> h.getStacksHandler("back")
-                                .map(s -> s.getStacks().getStackInSlot(0))
-                                .orElse(ItemStack.EMPTY))
+                var optional = top.theillusivec4.curios.api.CuriosApi.getCuriosInventory(player);
+                if (optional.isEmpty()) return ItemStack.EMPTY;
+                return optional.get().getStacksHandler("back")
+                        .map(s -> s.getStacks().getStackInSlot(0))
                         .orElse(ItemStack.EMPTY);
             } catch (Exception e) {
                 return ItemStack.EMPTY;
@@ -53,23 +46,13 @@ public class CuriosCompat {
 
         static void updateBackStackNBT(Player player, CompoundTag inventoryNBT) {
             try {
-                top.theillusivec4.curios.api.CuriosApi.getCuriosHelper()
-                        .getCuriosHandler(player)
+                top.theillusivec4.curios.api.CuriosApi.getCuriosInventory(player)
                         .ifPresent(h -> h.getStacksHandler("back").ifPresent(stacks -> {
                             ItemStack stack = stacks.getStacks().getStackInSlot(0);
                             if (!stack.isEmpty()) {
                                 ItemData.set(stack, "inventory", inventoryNBT);
                             }
                         }));
-            } catch (Exception ignored) {}
-        }
-
-        static void registerCurioItems(java.util.List<net.minecraft.world.item.Item> items) {
-            try {
-                for (net.minecraft.world.item.Item item : items) {
-                    top.theillusivec4.curios.api.CuriosApi.registerCurio(
-                            item, com.orbital.orbitalbackpack.compat.CurioBackpackItem.INSTANCE);
-                }
             } catch (Exception ignored) {}
         }
     }
