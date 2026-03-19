@@ -18,5 +18,6 @@ public class ModNetwork {
         r.playToServer(MagnetTogglePacket.TYPE, MagnetTogglePacket.STREAM_CODEC, MagnetTogglePacket::handle);
         r.playToClient(SyncInventoryNBTPacket.TYPE, SyncInventoryNBTPacket.STREAM_CODEC, SyncInventoryNBTPacket::handle);
         r.playToServer(PickupBackpackPacket.TYPE, PickupBackpackPacket.STREAM_CODEC, PickupBackpackPacket::handle);
+        r.playToServer(OpenBackSlotPacket.TYPE, OpenBackSlotPacket.STREAM_CODEC, OpenBackSlotPacket::handle);
     }
 }
