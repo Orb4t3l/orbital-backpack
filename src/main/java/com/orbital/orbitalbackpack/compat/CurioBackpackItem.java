@@ -8,11 +8,13 @@ public class CurioBackpackItem implements ICurioItem {
 
     public static final CurioBackpackItem INSTANCE = new CurioBackpackItem();
 
-    public boolean canEquip(ItemStack stack, SlotContext slotContext) {
+    @Override
+    public boolean canEquip(SlotContext slotContext, ItemStack stack) {
         return slotContext.identifier().equals("back");
     }
 
-    public boolean canUnequip(ItemStack stack, SlotContext slotContext) {
+    @Override
+    public boolean canUnequip(SlotContext slotContext, ItemStack stack) {
         return true;
     }
 }
