@@ -26,6 +26,7 @@ public class ModCreativeTabs {
 
     private static void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+            OrbitalBackpack.LOGGER.info("Adding backpacks to creative tab");
             for (BackpackTier tier : BackpackTier.values()) {
                 event.accept(ModItems.BACKPACKS.get(tier).get());
             }
