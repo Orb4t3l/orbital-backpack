@@ -19,6 +19,10 @@ import org.slf4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.orbital.orbitalbackpack.registries.ModBlocks.BLOCKS;
+import static com.orbital.orbitalbackpack.registries.ModBlocks.BLOCK_ITEMS;
+
+
 @Mod(OrbitalBackpack.MODID)
 public class OrbitalBackpack {
     public static final String MODID = "orbitalbackpack";
@@ -48,11 +52,11 @@ public class OrbitalBackpack {
                         .toList());
                 for (Item item : backpacks) {
                     top.theillusivec4.curios.api.CuriosApi.registerCurio(item, CurioBackpackItem.INSTANCE);
-                }
-            }
+                }}
         });
     }
 
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {}
+
 }

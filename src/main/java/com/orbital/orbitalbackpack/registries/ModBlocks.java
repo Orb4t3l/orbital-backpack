@@ -38,4 +38,9 @@ public class ModBlocks {
     public static DeferredHolder<Block, Block> get(BackpackTier tier) {
         return BLOCKS_MAP.get(tier);
     }
+
+    public static void register(IEventBus eventBus) {
+        BLOCKS.register(eventBus);
+        BLOCK_ITEMS.register(eventBus);
+    }
 }
