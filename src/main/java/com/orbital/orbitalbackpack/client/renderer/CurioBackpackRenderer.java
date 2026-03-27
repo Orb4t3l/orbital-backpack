@@ -6,6 +6,7 @@ import com.orbital.orbitalbackpack.BackpackModel;
 import com.orbital.orbitalbackpack.client.ClientSetup;
 import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.items.Backpack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -32,8 +33,12 @@ public class CurioBackpackRenderer implements ICurioRenderer {
             float ageInTicks, float netHeadYaw, float headPitch) {
 
         if (model == null) {
-            var mc = net.minecraft.client.Minecraft.getInstance();
-            model = new BackpackModel(mc.getEntityModels().bakeLayer(ClientSetup.BACKPACK_LAYER));
+            try {
+                model = new BackpackModel(
+                        Minecraft.getInstance().getEntityModels().bakeLayer(ClientSetup.BACKPACK_LAYER));
+            } catch (Exception e) {
+                return;
+            }
         }
 
         if (!(stack.getItem() instanceof Backpack backpack)) return;
@@ -42,13 +47,17 @@ public class CurioBackpackRenderer implements ICurioRenderer {
                 "textures/entity/" + backpack.getTier().name().toLowerCase() + "_backpack.png");
 
         poseStack.pushPose();
-        poseStack.translate(0.0, 0.0, 0.2);
-        poseStack.mulPose(Axis.YP.rotationDegrees(180f));
-        poseStack.scale(0.55f, 0.55f, 0.55f);
-        poseStack.translate(0.0, -1.5, 0.0);
+        try {
+            poseStack.translate(0.0, 0.0, 0.25);
+            poseStack.mulPose(Axis.YP.rotationDegrees(180f));
+            poseStack.scale(0.75f, 0.75f, 0.75f);
+            poseStack.translate(0.0, -1.25, 0.0);
 
-        var vertexConsumer = buffer.getBuffer(RenderType.entityCutout(texture));
-        model.renderToBuffer(poseStack, vertexConsumer, light, OverlayTexture.NO_OVERLAY);
-        poseStack.popPose();
+            var vertexConsumer = buffer.getBuffer(RenderType.entityCutout(texture));
+            model.renderToBuffer(poseStack, vertexConsumer, light, OverlayTexture.NO_OVERLAY);
+        } finally {
+            poseStack.popPose();
+        }
     }
 }
+

@@ -61,7 +61,10 @@
   },
   "minecraft:adventure/adventuring_time": {
     "criteria": {
-      "minecraft:sparse_jungle": "2026-03-18 21:51:24 -0700"
+      "minecraft:sparse_jungle": "2026-03-18 21:51:24 -0700",
+      "minecraft:jungle": "2026-03-27 14:05:01 -0700",
+      "minecraft:river": "2026-03-26 20:01:39 -0700",
+      "minecraft:bamboo_jungle": "2026-03-26 20:01:29 -0700"
     },
     "done": false
   },
@@ -137,12 +140,6 @@
     },
     "done": true
   },
-  "minecraft:recipes/decorations/chest": {
-    "criteria": {
-      "has_lots_of_items": "2026-03-18 23:05:38 -0700"
-    },
-    "done": true
-  },
   "minecraft:recipes/building_blocks/sandstone": {
     "criteria": {
       "has_sand": "2026-03-18 23:05:28 -0700"
@@ -176,6 +173,12 @@
   "minecraft:recipes/building_blocks/cyan_concrete_powder": {
     "criteria": {
       "has_sand": "2026-03-18 23:05:28 -0700"
+    },
+    "done": true
+  },
+  "minecraft:recipes/decorations/chest": {
+    "criteria": {
+      "has_lots_of_items": "2026-03-18 23:05:38 -0700"
     },
     "done": true
   },
