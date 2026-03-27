@@ -1,12 +1,3 @@
 {
-  "parent": "item/handheld",
-  "textures": {
-    "layer0": "orbitalbackpack:item/leather_backpack"
-  },
-  "overrides": [
-    {
-      "predicate": { "orbitalbackpack:open": 1 },
-      "model": "orbitalbackpack:item/leather_backpack_open"
-    }
-  ]
+  "parent": "builtin/entity"
 }

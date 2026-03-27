@@ -1,8 +1,10 @@
 package com.orbital.orbitalbackpack.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.orbital.orbitalbackpack.BackpackModel;
 import com.orbital.orbitalbackpack.OrbitalBackpack;
 import com.orbital.orbitalbackpack.client.renderer.BackpackBlockEntityRenderer;
+import com.orbital.orbitalbackpack.client.renderer.BackpackItemRenderer;
 import com.orbital.orbitalbackpack.client.renderer.CurioBackpackRenderer;
 import com.orbital.orbitalbackpack.client.screen.BackpackScreen;
 import com.orbital.orbitalbackpack.client.tooltip.BackpackClientTooltipComponent;
@@ -15,9 +17,13 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
@@ -27,6 +33,8 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import org.lwjgl.glfw.GLFW;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
@@ -92,5 +100,25 @@ public final class ClientSetup {
     @SubscribeEvent
     public static void onRegisterLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(BACKPACK_LAYER, BackpackModel::createBodyLayer);
+    }
+
+
+    @SubscribeEvent
+    public static void onRegisterClientExtensions(
+            net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent event) {
+
+        var extensions = new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {
+            private BackpackItemRenderer renderer;
+
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                if (renderer == null) renderer = new BackpackItemRenderer();
+                return renderer;
+            }
+        };
+
+        for (BackpackTier tier : BackpackTier.values()) {
+            event.registerItem(extensions, ModItems.BACKPACKS.get(tier).get());
+        }
     }
 }
