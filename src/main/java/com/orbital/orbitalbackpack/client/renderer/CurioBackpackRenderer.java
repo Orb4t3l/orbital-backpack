@@ -2,6 +2,8 @@ package com.orbital.orbitalbackpack.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import com.orbital.orbitalbackpack.BackpackModel;
+import com.orbital.orbitalbackpack.client.ClientSetup;
 import com.orbital.orbitalbackpack.common.BackpackTier;
 import com.orbital.orbitalbackpack.items.Backpack;
 import net.minecraft.client.model.EntityModel;
@@ -20,68 +22,33 @@ import top.theillusivec4.curios.api.client.ICurioRenderer;
 
 public class CurioBackpackRenderer implements ICurioRenderer {
 
-    private ModelPart body;
-    private ModelPart lid;
-    private boolean initialized = false;
-
-    private void init() {
-        if (initialized) return;
-        MeshDefinition mesh = new MeshDefinition();
-        PartDefinition root = mesh.getRoot();
-
-        root.addOrReplaceChild("body",
-                CubeListBuilder.create()
-                        .texOffs(0, 8)
-                        .addBox(-4f, -8f, -4f, 8f, 8f, 8f),
-                PartPose.ZERO);
-
-        root.addOrReplaceChild("lid",
-                CubeListBuilder.create()
-                        .texOffs(0, 0)
-                        .addBox(-4f, -3f, -4f, 8f, 3f, 8f),
-                PartPose.offset(0f, -8f, 4f));
-
-        LayerDefinition layer = LayerDefinition.create(mesh, 64, 32);
-        ModelPart baked = layer.bakeRoot();
-        this.body = baked.getChild("body");
-        this.lid = baked.getChild("lid");
-        this.initialized = true;
-    }
+    private BackpackModel model;
 
     @Override
     public <T extends LivingEntity, M extends EntityModel<T>> void render(
-            ItemStack stack,
-            SlotContext slotContext,
-            PoseStack poseStack,
-            RenderLayerParent<T, M> renderLayerParent,
-            MultiBufferSource renderTypeBuffer,
-            int light,
-            float limbSwing,
-            float limbSwingAmount,
-            float partialTicks,
-            float ageInTicks,
-            float netHeadYaw,
-            float headPitch) {
+            ItemStack stack, SlotContext slotContext, PoseStack poseStack,
+            RenderLayerParent<T, M> renderLayerParent, MultiBufferSource buffer,
+            int light, float limbSwing, float limbSwingAmount, float partialTicks,
+            float ageInTicks, float netHeadYaw, float headPitch) {
 
-        init();
+        if (model == null) {
+            var mc = net.minecraft.client.Minecraft.getInstance();
+            model = new BackpackModel(mc.getEntityModels().bakeLayer(ClientSetup.BACKPACK_LAYER));
+        }
 
         if (!(stack.getItem() instanceof Backpack backpack)) return;
 
-        BackpackTier tier = backpack.getTier();
         ResourceLocation texture = ResourceLocation.fromNamespaceAndPath("orbitalbackpack",
-                "textures/block/" + tier.name().toLowerCase() + "_backpack_block.png");
+                "textures/entity/" + backpack.getTier().name().toLowerCase() + "_backpack.png");
 
         poseStack.pushPose();
-
         poseStack.translate(0.0, 0.0, 0.2);
-        poseStack.mulPose(Axis.XP.rotationDegrees(180f));
+        poseStack.mulPose(Axis.YP.rotationDegrees(180f));
         poseStack.scale(0.55f, 0.55f, 0.55f);
-        poseStack.translate(0.0, -0.5, -0.85);
+        poseStack.translate(0.0, -1.5, 0.0);
 
-        var buffer = renderTypeBuffer.getBuffer(RenderType.entityCutout(texture));
-        body.render(poseStack, buffer, light, OverlayTexture.NO_OVERLAY);
-        lid.render(poseStack, buffer, light, OverlayTexture.NO_OVERLAY);
-
+        var vertexConsumer = buffer.getBuffer(RenderType.entityCutout(texture));
+        model.renderToBuffer(poseStack, vertexConsumer, light, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();
     }
 }

@@ -977,3 +977,4 @@ java.io.IOException: Bad PNG Signature
 [18Mar2026 23:05:39.932] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
 [18Mar2026 23:05:39.932] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage: All dimensions are saved
 [18Mar2026 23:05:39.976] [Server thread/DEBUG] [net.neoforged.fml.config.ConfigTracker/CONFIG]: Unloading configs type SERVER
+[18Mar2026 23:05:59.018] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Stopping!

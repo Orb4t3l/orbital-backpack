@@ -1,5 +1,6 @@
 package com.orbital.orbitalbackpack.client;
 
+import com.orbital.orbitalbackpack.BackpackModel;
 import com.orbital.orbitalbackpack.OrbitalBackpack;
 import com.orbital.orbitalbackpack.client.renderer.BackpackBlockEntityRenderer;
 import com.orbital.orbitalbackpack.client.renderer.CurioBackpackRenderer;
@@ -13,6 +14,7 @@ import com.orbital.orbitalbackpack.registries.ModMenus;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
@@ -21,6 +23,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
@@ -35,6 +38,9 @@ public final class ClientSetup {
             GLFW.GLFW_KEY_B,
             "key.categories.orbitalbackpack"
     );
+
+    public static final ModelLayerLocation BACKPACK_LAYER = new ModelLayerLocation(
+            ResourceLocation.fromNamespaceAndPath("orbitalbackpack", "backpack"), "main");
 
     private ClientSetup() {}
 
@@ -81,5 +87,10 @@ public final class ClientSetup {
     @SubscribeEvent
     public static void onRegisterTooltips(RegisterClientTooltipComponentFactoriesEvent event) {
         event.register(BackpackTooltipComponent.class, BackpackClientTooltipComponent::new);
+    }
+
+    @SubscribeEvent
+    public static void onRegisterLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(BACKPACK_LAYER, BackpackModel::createBodyLayer);
     }
 }
