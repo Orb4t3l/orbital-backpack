@@ -32,7 +32,7 @@ public class BackpackBlockEntityRenderer implements BlockEntityRenderer<Backpack
                 "textures/entity/leather_backpack.png");
 
         poseStack.pushPose();
-        poseStack.translate(0.5, 1.5, 0.5);
+        poseStack.translate(0.5, -0.8, 0.5);
         poseStack.mulPose(Axis.YP.rotationDegrees(180f));
         poseStack.scale(0.9f, 0.9f, 0.9f);
 

@@ -48,10 +48,9 @@ public class CurioBackpackRenderer implements ICurioRenderer {
 
         poseStack.pushPose();
         try {
-            poseStack.translate(0.0, 0.3, 0.3);
+            poseStack.translate(0.0, -0.75, 0.3);
             poseStack.mulPose(Axis.YP.rotationDegrees(180f));
-            poseStack.scale(1.0f, 1.0f, 1.0f);
-            poseStack.translate(0.0, 0.0, 0.0);
+            poseStack.scale(0.95f, 0.95f, 0.95f);
 
             var vertexConsumer = buffer.getBuffer(RenderType.entityCutout(texture));
             model.renderToBuffer(poseStack, vertexConsumer, light, OverlayTexture.NO_OVERLAY);

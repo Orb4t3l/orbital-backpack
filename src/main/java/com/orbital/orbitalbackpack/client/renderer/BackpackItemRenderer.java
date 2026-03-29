@@ -42,9 +42,10 @@ public class BackpackItemRenderer extends BlockEntityWithoutLevelRenderer {
 
         poseStack.pushPose();
         try {
-            poseStack.translate(0.5, 1.5, 0.5);
-            poseStack.mulPose(Axis.YP.rotationDegrees(180f));
-            poseStack.scale(0.9f, 0.9f, 0.9f);
+            poseStack.translate(0.45, -0.9, 0.5);
+            poseStack.mulPose(Axis.YP.rotationDegrees(75));
+//            poseStack.mulPose(Axis.XP.rotationDegrees(-25f));  // tilt to show top
+            poseStack.scale(1.15f, 1.15f, 1.15f);
 
             var vertexConsumer = buffer.getBuffer(RenderType.entityCutout(texture));
             getModel().renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
