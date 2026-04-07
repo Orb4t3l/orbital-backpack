@@ -41,7 +41,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
     private static final int SLOT_HIDDEN_COLOR = 0xFF3D3D3D;
     private static final int SEARCH_BOX_WIDTH = 60;
     private static final int SEARCH_BOX_HEIGHT = 12;
-    private static final int BUTTON_SIZE = 12;
+    private static final int BUTTON_SIZE = 16;
     private static final int BUTTON_GAP = 3;
     private static final int MAGNET_ACTIVE_COLOR = 0x3300AAFF;
 

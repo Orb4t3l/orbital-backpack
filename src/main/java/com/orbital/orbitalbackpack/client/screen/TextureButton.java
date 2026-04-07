@@ -36,14 +36,15 @@ public class TextureButton extends AbstractButton {
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderTexture(0, texture);
 
-        int vOffset = this.isHoveredOrFocused() ? texV + texHeight : texV;
-        // Same blit variant as renderBg background - reliable for direct PNG files
-        guiGraphics.blit(texture, getX(), getY(), texU, vOffset, texWidth, texHeight);
+        guiGraphics.blit(texture, getX(), getY(), texU, texV, texWidth, texHeight, 16, 16);
+
+        if (this.isHoveredOrFocused()) {
+            guiGraphics.fill(getX(), getY(), getX() + width, getY() + height, 0x33FFFFFF);
+        }
     }
 
     @Override
