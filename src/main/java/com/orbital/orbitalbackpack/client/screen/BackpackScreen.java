@@ -75,32 +75,29 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         if (this.menu.isBlockBased()) {
             TextureButton pickupButton = new TextureButton(
                     sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
-                    0, 0, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE * 2,
+                    0, 0, BUTTON_SIZE, BUTTON_SIZE, 16, 16,
                     PICKUP_BUTTON_TEXTURE, btn -> onPickupClicked());
             pickupButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.pickup")));
             this.addRenderableWidget(pickupButton);
             currentY += BUTTON_SIZE + BUTTON_GAP;
         }
 
-        TextureButton sortButton = new TextureButton(
-                sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
-                0, 0, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE * 2,
+        TextureButton sortButton = new TextureButton(sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
+                0, 0, BUTTON_SIZE, BUTTON_SIZE, 16, 16,
                 SORT_BUTTON_TEXTURE, btn -> onSortClicked());
         sortButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.sort")));
         this.addRenderableWidget(sortButton);
         currentY += BUTTON_SIZE + BUTTON_GAP;
 
-        TextureButton depositButton = new TextureButton(
-                sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
-                0, 0, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE * 2,
+        TextureButton depositButton = new TextureButton(sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
+                0, 0, BUTTON_SIZE, BUTTON_SIZE, 16, 16,
                 DEPOSIT_BUTTON_TEXTURE, btn -> onDepositClicked());
         depositButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.deposit")));
         this.addRenderableWidget(depositButton);
         currentY += BUTTON_SIZE + BUTTON_GAP;
 
-        TextureButton withdrawButton = new TextureButton(
-                sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
-                0, 0, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE * 2,
+        TextureButton withdrawButton = new TextureButton(sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
+                0, 0, BUTTON_SIZE, BUTTON_SIZE, 16, 16,
                 WITHDRAW_BUTTON_TEXTURE, btn -> onWithdrawClicked());
         withdrawButton.setTooltip(Tooltip.create(Component.translatable("gui.orbitalbackpack.withdraw")));
         this.addRenderableWidget(withdrawButton);
@@ -109,9 +106,8 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
         if (!this.menu.isBlockBased()) {
             boolean unlocked = isMagnetUnlocked();
             ResourceLocation magnetTex = unlocked ? MAGNET_BUTTON_TEXTURE : MAGNET_LOCKED_TEXTURE;
-            TextureButton magnetButton = new TextureButton(
-                    sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
-                    0, 0, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE * 2,
+            TextureButton magnetButton = new TextureButton(sideX, currentY, BUTTON_SIZE, BUTTON_SIZE,
+                    0, 0, BUTTON_SIZE, BUTTON_SIZE, 16, 16,
                     magnetTex, btn -> { if (unlocked) onMagnetClicked(); });
             magnetButton.setTooltip(Tooltip.create(Component.translatable(
                     unlocked ? "gui.orbitalbackpack.magnet" : "gui.orbitalbackpack.magnet_locked")));
