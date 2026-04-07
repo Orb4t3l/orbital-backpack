@@ -12,8 +12,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jetbrains.annotations.Nullable;
-
 
 public class BackpackBlockEntity extends BlockEntity {
 
@@ -44,38 +42,16 @@ public class BackpackBlockEntity extends BlockEntity {
 
     public void setOpen(boolean open) {
         this.open = open;
-        setChanged(); // mark dirty on server
-
-        // Tell clients to refresh this block entity (force a block update).
+        setChanged();
         if (level != null && !level.isClientSide) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
     }
 
-    public void load(BlockState state, CompoundTag tag) {
-
-        readTag(tag);
-    }
-
-
-    public void load(CompoundTag tag) {
-        // If your mapping requires calling super.load(tag), add it here.
-        readTag(tag);
-    }
-
-
-    private void readTag(CompoundTag tag) {
-        if (tag == null) return;
-        if (tag.contains("inventory")) {
-            tag.put("inventory", handler.serializeNBT(level.registryAccess()));        }
-        if (tag.contains("claimed")) this.claimed = tag.getBoolean("claimed");
-        if (tag.contains("openTick")) this.openTick = tag.getInt("openTick");
-        if (tag.contains("open")) this.open = tag.getBoolean("open");
-    }
-
+    @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        if (tag == null) return;
-        handler.deserializeNBT(level.registryAccess(), tag.getCompound("inventory"));
+        super.saveAdditional(tag, registries);
+        tag.put("inventory", handler.serializeNBT(registries));
         tag.putBoolean("claimed", this.claimed);
         tag.putBoolean("open", this.open);
         tag.putInt("openTick", this.openTick);
@@ -84,7 +60,12 @@ public class BackpackBlockEntity extends BlockEntity {
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        handler.deserializeNBT(registries, tag.getCompound("inventory"));
+        if (tag.contains("inventory")) {
+            handler.deserializeNBT(registries, tag.getCompound("inventory"));
+        }
+        this.claimed = tag.getBoolean("claimed");
+        this.open = tag.getBoolean("open");
+        this.openTick = tag.getInt("openTick");
     }
 
     @Override
@@ -98,4 +79,4 @@ public class BackpackBlockEntity extends BlockEntity {
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
-    }
+}
