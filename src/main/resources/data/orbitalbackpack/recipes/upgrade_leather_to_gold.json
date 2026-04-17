@@ -1,0 +1,6 @@
+{
+  "type": "orbitalbackpack:backpack_tier_upgrade",
+  "from": "LEATHER",
+  "to": "GOLD",
+  "material": "minecraft:gold_ingot"
+}

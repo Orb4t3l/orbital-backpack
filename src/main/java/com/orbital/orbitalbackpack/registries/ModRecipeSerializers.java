@@ -1,6 +1,7 @@
 package com.orbital.orbitalbackpack.registries;
 
 import com.orbital.orbitalbackpack.crafting.BackpackSmithingRecipe;
+import com.orbital.orbitalbackpack.crafting.BackpackTierUpgradeRecipe;
 import com.orbital.orbitalbackpack.crafting.BackpackUpgradeRecipe;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -20,6 +21,9 @@ public class ModRecipeSerializers {
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BackpackSmithingRecipe>> BACKPACK_SMITHING =
             RECIPE_SERIALIZERS.register("backpack_smithing", BackpackSmithingRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BackpackTierUpgradeRecipe>> BACKPACK_TIER_UPGRADE =
+            RECIPE_SERIALIZERS.register("backpack_tier_upgrade", BackpackTierUpgradeRecipe.Serializer::new);
 
     public static void register(IEventBus eventBus) {
         RECIPE_SERIALIZERS.register(eventBus);

@@ -12,7 +12,8 @@
     "C": { "item": "minecraft:chest" }
   },
   "result": {
-    "item": "orbitalbackpack:leather_backpack",
+    "id": "orbitalbackpack:leather_backpack",
     "count": 1
   }
 }
+

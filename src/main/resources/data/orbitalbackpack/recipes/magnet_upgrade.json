@@ -11,7 +11,7 @@
     "C": { "item": "minecraft:compass" }
   },
   "result": {
-    "item": "orbitalbackpack:magnet_upgrade",
+    "id": "orbitalbackpack:magnet_upgrade",
     "count": 1
   }
 }

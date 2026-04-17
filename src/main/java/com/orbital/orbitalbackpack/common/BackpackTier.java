@@ -6,12 +6,9 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
-public enum BackpackTier {
-    LEATHER(3),
-    GOLD(4),
-    IRON(5),
-    DIAMOND(6),
-    NETHERITE(7);
+public enum BackpackTier{
+    LEATHER(3), GOLD(4), IRON(5), DIAMOND(6), NETHERITE(7);
+
 
     private final int rows;
     public static final StreamCodec<ByteBuf, BackpackTier> STREAM_CODEC =

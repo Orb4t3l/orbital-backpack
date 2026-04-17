@@ -1,9 +1,3 @@
 {
-  "type": "minecraft:smithing_transform",
-  "template": "minecraft:netherite_upgrade_smithing_template",
-  "base": "orbitalbackpack:diamond_backpack",
-  "addition": "minecraft:netherite_ingot",
-  "result": {
-    "item": "orbitalbackpack:netherite_backpack"
-  }
+  "type": "orbitalbackpack:backpack_smithing"
 }

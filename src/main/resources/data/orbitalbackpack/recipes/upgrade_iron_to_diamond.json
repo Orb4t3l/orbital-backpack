@@ -10,7 +10,7 @@
     "B": { "item": "orbitalbackpack:iron_backpack" }
   },
   "result": {
-    "item": "orbitalbackpack:diamond_backpack",
+    "id": "orbitalbackpack:diamond_backpack",
     "count": 1
   }
 }
