@@ -38,14 +38,17 @@ public class BackpackTierUpgradeRecipe extends CustomRecipe {
         int materialCount = 0;
         int expectedMaterial = 8;
 
+        net.minecraft.resources.ResourceLocation targetRL =
+                net.minecraft.resources.ResourceLocation.parse(material);
+
         for (int i = 0; i < input.size(); i++) {
             ItemStack stack = input.getItem(i);
             if (stack.isEmpty()) continue;
             if (stack.getItem() instanceof Backpack backpack) {
                 if (backpack.getTier() != fromTier) return false;
                 hasBackpack = true;
-            } else if (stack.is(net.minecraft.core.registries.BuiltInRegistries.ITEM
-                    .get(net.minecraft.resources.ResourceLocation.parse(material)))) {
+            } else if (net.minecraft.core.registries.BuiltInRegistries.ITEM
+                    .getKey(stack.getItem()).equals(targetRL)) {
                 materialCount++;
             } else {
                 return false;
