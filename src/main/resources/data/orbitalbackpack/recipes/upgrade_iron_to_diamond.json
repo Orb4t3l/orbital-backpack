@@ -1,16 +1,6 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "DDD",
-    "DBD",
-    "DDD"
-  ],
-  "key": {
-    "D": { "item": "minecraft:diamond" },
-    "B": { "item": "orbitalbackpack:iron_backpack" }
-  },
-  "result": {
-    "id": "orbitalbackpack:diamond_backpack",
-    "count": 1
-  }
+  "type": "orbitalbackpack:backpack_tier_upgrade",
+  "from": "iron",
+  "to": "diamond",
+  "material": "minecraft:diamond"
 }

@@ -1,16 +1,6 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "III",
-    "IBI",
-    "III"
-  ],
-  "key": {
-    "I": { "item": "minecraft:iron_ingot" },
-    "B": { "item": "orbitalbackpack:gold_backpack" }
-  },
-  "result": {
-    "id": "orbitalbackpack:iron_backpack",
-    "count": 1
-  }
+  "type": "orbitalbackpack:backpack_tier_upgrade",
+  "from": "gold",
+  "to": "iron",
+  "material": "minecraft:gold_ingot"
 }

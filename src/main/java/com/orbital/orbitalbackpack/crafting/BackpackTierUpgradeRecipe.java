@@ -1,5 +1,6 @@
 package com.orbital.orbitalbackpack.crafting;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.orbital.orbitalbackpack.common.BackpackTier;
@@ -90,12 +91,9 @@ public class BackpackTierUpgradeRecipe extends CustomRecipe {
 
         public static final MapCodec<BackpackTierUpgradeRecipe> CODEC =
                 RecordCodecBuilder.mapCodec(inst -> inst.group(
-                        net.minecraft.util.StringRepresentable.fromEnum(BackpackTier::values)
-                                .fieldOf("from").forGetter(r -> r.fromTier),
-                        net.minecraft.util.StringRepresentable.fromEnum(BackpackTier::values)
-                                .fieldOf("to").forGetter(r -> r.toTier),
-                        com.mojang.serialization.Codec.STRING.fieldOf("material")
-                                .forGetter(r -> r.material)
+                        BackpackTier.CODEC.fieldOf("from").forGetter(r -> r.fromTier),
+                        BackpackTier.CODEC.fieldOf("to").forGetter(r -> r.toTier),
+                        Codec.STRING.fieldOf("material").forGetter(r -> r.material)
                 ).apply(inst, BackpackTierUpgradeRecipe::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, BackpackTierUpgradeRecipe> STREAM_CODEC =
