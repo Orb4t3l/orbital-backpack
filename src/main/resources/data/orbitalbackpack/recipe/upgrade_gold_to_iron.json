@@ -2,5 +2,5 @@
   "type": "orbitalbackpack:backpack_tier_upgrade",
   "from": "gold",
   "to": "iron",
-  "material": "minecraft:gold_ingot"
+  "material": "minecraft:iron_ingot"
 }
