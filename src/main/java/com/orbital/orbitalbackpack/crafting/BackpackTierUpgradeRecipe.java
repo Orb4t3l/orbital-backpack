@@ -63,11 +63,14 @@ public class BackpackTierUpgradeRecipe extends CustomRecipe {
             ItemStack stack = input.getItem(i);
             if (stack.getItem() instanceof Backpack) {
                 ItemStack result = new ItemStack(ModItems.BACKPACKS.get(toTier).get());
-                // copy inventory NBT
+
                 if (ItemData.has(stack, "inventory")) {
-                    ItemData.set(result, "inventory", ItemData.getCompound(stack, "inventory"));
+                    // Clone the tag and fix the Size field to match the new tier
+                    net.minecraft.nbt.CompoundTag inv = ItemData.getCompound(stack, "inventory").copy();
+                    inv.putInt("Size", toTier.getSlots());
+                    ItemData.set(result, "inventory", inv);
                 }
-                // copy magnet data
+
                 if (ItemData.has(stack, "magnet_unlocked")) {
                     ItemData.setBoolean(result, "magnet_unlocked", ItemData.getBoolean(stack, "magnet_unlocked"));
                 }

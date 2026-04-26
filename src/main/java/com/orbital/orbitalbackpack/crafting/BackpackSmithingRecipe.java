@@ -31,7 +31,16 @@ public class BackpackSmithingRecipe implements SmithingRecipe {
         ItemStack base = input.base();
         ItemStack result = new ItemStack(ModItems.BACKPACKS.get(BackpackTier.NETHERITE).get());
         var customData = base.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
-        if (customData != null) result.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA, customData);
+        if (customData != null) {
+            net.minecraft.nbt.CompoundTag tag = customData.copyTag();
+            if (tag.contains("inventory")) {
+                net.minecraft.nbt.CompoundTag inv = tag.getCompound("inventory");
+                inv.putInt("Size", BackpackTier.NETHERITE.getSlots());
+                tag.put("inventory", inv);
+            }
+            result.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
+                    net.minecraft.world.item.component.CustomData.of(tag));
+        }
         return result;
     }
 
